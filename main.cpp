@@ -1,14 +1,22 @@
 #include <memory>
 
 #include <SFML/Graphics.hpp>
+#include "tileset.h"
 
 
-auto createCenteredWindow(unsigned width, unsigned height) {
-    auto window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height), "Space Logic Adventure");
+auto createCenteredWindow(int width, int height) {
+    auto window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height), "Space Logic Adventure", sf::Style::Titlebar | sf::Style::Close);
     int posX = (sf::VideoMode::getDesktopMode().width - window->getSize().x) / 2,
         posY = (sf::VideoMode::getDesktopMode().height - window->getSize().y) / 2;
     window->setPosition(sf::Vector2i(posX, posY));
     return window;
+}
+
+void addSpriteToVertexArray(sf::VertexArray& arr, SpriteInfo spriteInfo, sf::Vector2f leftTopPos) {
+    arr.append(sf::Vertex(leftTopPos, spriteInfo.texCoords.top_left));
+    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y), spriteInfo.texCoords.top_right));
+    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_right));
+    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_left));
 }
 
 int main() {
@@ -21,40 +29,17 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, window->getSize().x, window->getSize().y });
 
-    sf::Texture tx1;
-    tx1.loadFromFile("assets/metalTileConnectEnd_SE.png");
-    tx1.setSmooth(true);
-    sf::Sprite sp1(tx1);
-    sp1.setPosition(sf::Vector2f(200, 200));
-    sp1.setScale(0.5, 0.5);
+    sf::Texture tileset;
+    tileset.loadFromFile("assets/tileset.png");
+    tileset.setSmooth(true);
 
-    sf::Texture tx2;
-    tx2.loadFromFile("assets/metalTileConnectStraight_NE.png");
-    tx2.setSmooth(true);
-    sf::Sprite sp2(tx2);
-    sp2.setPosition(sf::Vector2f(234, 174));
-    sp2.setScale(0.5, 0.5);
-
-    sf::Texture tx3;
-    tx3.loadFromFile("assets/metalTileConnectStraight_NE.png");
-    tx3.setSmooth(true);
-    sf::Sprite sp3(tx3);
-    sp3.setPosition(sf::Vector2f(271, 148));
-    sp3.setScale(0.5, 0.5);
-
-    sf::Texture tx4;
-    tx4.loadFromFile("assets/metalTileConnectCornerInner_SW.png");
-    tx4.setSmooth(true);
-    sf::Sprite sp4(tx4);
-    sp4.setPosition(sf::Vector2f(308, 124));
-    sp4.setScale(0.5, 0.5);
-
-    sf::Texture tx5;
-    tx5.loadFromFile("assets/alien_NE.png");
-    tx5.setSmooth(true);
-    sf::Sprite sp5(tx5);
-    sp5.setPosition(sf::Vector2f(217, 193));
-    sp5.setScale(0.7, 0.7);
+    sf::VertexArray vertices;
+    vertices.setPrimitiveType(sf::Quads);
+    addSpriteToVertexArray(vertices, Tileset::metalTileConnectCornerInner_SW, sf::Vector2f(308, 124));
+    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(271, 148));
+    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(234, 174));
+    addSpriteToVertexArray(vertices, Tileset::metalTileConnectEnd_SE, sf::Vector2f(200, 200));
+    addSpriteToVertexArray(vertices, Tileset::alien_NE, sf::Vector2f(217, 193));
 
     while (window->isOpen()) {
         sf::Event event;
@@ -64,11 +49,7 @@ int main() {
             }
         }
         window->draw(background_sp);
-        window->draw(sp4);
-        window->draw(sp3);
-        window->draw(sp2);
-        window->draw(sp1);
-        window->draw(sp5);
+        window->draw(vertices, sf::RenderStates(&tileset));
         window->display();
     }
 
