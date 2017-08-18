@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <SFML/Graphics.hpp>
-#include "tileset.h"
+#include "tileset.hpp"
 
 
 auto createCenteredWindow(int width, int height) {
@@ -20,14 +20,14 @@ void addSpriteToVertexArray(sf::VertexArray& arr, SpriteInfo spriteInfo, sf::Vec
 }
 
 int main() {
-    auto window = createCenteredWindow(800, 600);
+    auto window = createCenteredWindow(1024, 768);
     
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");
     background_tx.setRepeated(true);
     background_tx.setSmooth(true);
     sf::Sprite background_sp(background_tx);
-    background_sp.setTextureRect({ 0, 0, window->getSize().x, window->getSize().y });
+    background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
     sf::Texture tileset;
     tileset.loadFromFile("assets/tileset.png");
@@ -37,6 +37,7 @@ int main() {
     vertices.setPrimitiveType(sf::Quads);
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectCornerInner_SW, sf::Vector2f(308, 124));
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(271, 148));
+    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NW, sf::Vector2f(345, 148));
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(234, 174));
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectEnd_SE, sf::Vector2f(200, 200));
     addSpriteToVertexArray(vertices, Tileset::alien_NE, sf::Vector2f(217, 193));
