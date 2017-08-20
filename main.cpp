@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "tileset.hpp"
-
+#include "level.hpp"
 
 auto createCenteredWindow(int width, int height) {
     auto window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height), "Space Logic Adventure", sf::Style::Titlebar | sf::Style::Close);
@@ -41,6 +41,8 @@ int main() {
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(234, 174));
     addSpriteToVertexArray(vertices, Tileset::metalTileConnectEnd_SE, sf::Vector2f(200, 200));
     addSpriteToVertexArray(vertices, Tileset::alien_NE, sf::Vector2f(217, 193));
+
+    Level("1.txt");
 
     while (window->isOpen()) {
         sf::Event event;
