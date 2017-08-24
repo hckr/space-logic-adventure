@@ -12,13 +12,6 @@ auto createCenteredWindow(int width, int height) {
     return window;
 }
 
-void addSpriteToVertexArray(sf::VertexArray& arr, SpriteInfo spriteInfo, sf::Vector2f leftTopPos) {
-    arr.append(sf::Vertex(leftTopPos, spriteInfo.texCoords.top_left));
-    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y), spriteInfo.texCoords.top_right));
-    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_right));
-    arr.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_left));
-}
-
 int main() {
     auto window = createCenteredWindow(1024, 768);
     
@@ -29,20 +22,18 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
-    sf::Texture tileset;
-    tileset.loadFromFile("assets/tileset.png");
-    tileset.setSmooth(true);
-
-    sf::VertexArray vertices;
-    vertices.setPrimitiveType(sf::Quads);
-    addSpriteToVertexArray(vertices, Tileset::metalTileConnectCornerInner_SW, sf::Vector2f(308, 124));
-    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(271, 148));
-    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NW, sf::Vector2f(345, 148));
-    addSpriteToVertexArray(vertices, Tileset::metalTileConnectStraight_NE, sf::Vector2f(234, 174));
-    addSpriteToVertexArray(vertices, Tileset::metalTileConnectEnd_SE, sf::Vector2f(200, 200));
-    addSpriteToVertexArray(vertices, Tileset::alien_NE, sf::Vector2f(217, 193));
-
-    Level("1.txt");
+    auto level = Level("1.txt", "assets/tileset.png", {
+        { Level::FieldAppearance::VERTICAL, Tileset::metalTileConnectStraight_NE },
+        { Level::FieldAppearance::VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
+        { Level::FieldAppearance::VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },
+        { Level::FieldAppearance::HORIZONTAL, Tileset::metalTileConnectStraight_NW },
+        { Level::FieldAppearance::HORIZONTAL_OPENED_LEFT, Tileset::metalTileConnectEnd_NW },
+        { Level::FieldAppearance::HORIZONTAL_OPENED_RIGHT, Tileset::metalTileConnectEnd_SW },
+        { Level::FieldAppearance::UP_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SE },
+        { Level::FieldAppearance::LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
+        { Level::FieldAppearance::DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
+        { Level::FieldAppearance::LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
+    });
 
     while (window->isOpen()) {
         sf::Event event;
@@ -52,7 +43,7 @@ int main() {
             }
         }
         window->draw(background_sp);
-        window->draw(vertices, sf::RenderStates(&tileset));
+        window->draw(level);
         window->display();
     }
 

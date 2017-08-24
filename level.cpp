@@ -7,8 +7,22 @@
 #include <iostream>
 
 
-Level::Level(std::string fileName) {
+Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t spriteInfo) {
+    this->spriteInfo = spriteInfo;
+
+    tileset.loadFromFile(tilesetFilePath);
+    tileset.setSmooth(true);
+
+    vertices.setPrimitiveType(sf::Quads);
+
     loadMapFromFile(fileName);
+
+    addFieldToVertexArray(DOWN_RIGHT_TURN, sf::Vector2f(308, 124));
+    addFieldToVertexArray(VERTICAL, sf::Vector2f(271, 148));
+    addFieldToVertexArray(HORIZONTAL, sf::Vector2f(345, 148));
+    addFieldToVertexArray(VERTICAL, sf::Vector2f(234, 174));
+    addFieldToVertexArray(VERTICAL_OPENED_TOP, sf::Vector2f(200, 200));
+    // addFieldToVertexArray(Tileset::alien_NE, sf::Vector2f(217, 193));
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -115,4 +129,20 @@ void Level::setFieldFunction(int row, int column, FieldFunction function) {
     if (field.fieldAppearance == VERTICAL || field.fieldAppearance == HORIZONTAL) {
         field.fieldFunction = function;
     }
+}
+
+void Level::addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f leftTopPos) {
+    SpriteInfo &spriteInfo = this->spriteInfo[fieldAppearance];
+    vertices.append(sf::Vertex(leftTopPos, spriteInfo.texCoords.top_left));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y), spriteInfo.texCoords.top_right));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_right));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_left));
+}
+
+void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+    states.transform *= getTransform();
+    states.texture = &tileset;
+
+    target.draw(vertices, states);
 }
