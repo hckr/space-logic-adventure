@@ -19,6 +19,7 @@ Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceT
     vertices.setPrimitiveType(sf::Quads);
 
     loadMapFromFile(fileName);
+    closeMapBorders();
 
     for (auto &pair : map) {
         addFieldToVertexArray(pair.second, {pair.first.second, pair.first.first});
@@ -36,7 +37,7 @@ bool Level::movePlayer(PlayerMove move) {
     } catch (std::out_of_range) {
         return false;
     }
-    auto checkBitmask = [&availableMoves](int move) {
+    auto checkBitmask = [&availableMoves](Direction move) {
         return (availableMoves & move) == move;
     };
 
@@ -44,25 +45,25 @@ bool Level::movePlayer(PlayerMove move) {
     case FRONT:
         switch (player.face) {
         case Player::TOP:
-            if(!checkBitmask(CanMove::TOP)) {
+            if(!checkBitmask(Direction::TOP)) {
                 return false;
             }
             player.pos.y -= 1;
             break;
         case Player::RIGHT:
-            if(!checkBitmask(CanMove::RIGHT)) {
+            if(!checkBitmask(Direction::RIGHT)) {
                 return false;
             }
             player.pos.x += 1;
             break;
         case Player::BOTTOM:
-            if(!checkBitmask(CanMove::BOTTOM)) {
+            if(!checkBitmask(Direction::BOTTOM)) {
                 return false;
             }
             player.pos.y += 1;
             break;
         case Player::LEFT:
-            if(!checkBitmask(CanMove::LEFT)) {
+            if(!checkBitmask(Direction::LEFT)) {
                 return false;
             }
             player.pos.x -= 1;
@@ -72,25 +73,25 @@ bool Level::movePlayer(PlayerMove move) {
     case BACK:
         switch (player.face) {
         case Player::TOP:
-            if(!checkBitmask(CanMove::BOTTOM)) {
+            if(!checkBitmask(Direction::BOTTOM)) {
                 return false;
             }
             player.pos.y += 1;
             break;
         case Player::RIGHT:
-            if(!checkBitmask(CanMove::LEFT)) {
+            if(!checkBitmask(Direction::LEFT)) {
                 return false;
             }
             player.pos.x -= 1;
             break;
         case Player::BOTTOM:
-            if(!checkBitmask(CanMove::TOP)) {
+            if(!checkBitmask(Direction::TOP)) {
                 return false;
             }
             player.pos.y -= 1;
             break;
         case Player::LEFT:
-            if(!checkBitmask(CanMove::RIGHT)) {
+            if(!checkBitmask(Direction::RIGHT)) {
                 return false;
             }
             player.pos.x += 1;
@@ -120,6 +121,28 @@ void Level::loadMapFromFile(std::string fileName) {
                   << pair.second.fieldFunction << "\n";
         if (pair.second.fieldFunction == START) {
             player.pos = { pair.first.second, pair.first.first };
+        }
+    }
+}
+
+void Level::closeMapBorders() {
+    for (auto& [coords, field] : map) {
+        auto& [row, column] = coords;
+        switch (field.fieldAppearance) {
+        case VERTICAL:
+            if (map.count(std::make_pair(row - 1, column)) == 0) {
+                field.fieldAppearance = VERTICAL_OPENED_BOTTOM;
+            } else if (map.count(std::make_pair(row + 1, column)) == 0) {
+                field.fieldAppearance = VERTICAL_OPENED_TOP;
+            }
+            break;
+        case HORIZONTAL:
+            if (map.count(std::make_pair(row, column - 1)) == 0) {
+                field.fieldAppearance = HORIZONTAL_OPENED_RIGHT;
+            } else if (map.count(std::make_pair(row, column + 1)) == 0) {
+                field.fieldAppearance = HORIZONTAL_OPENED_LEFT;
+            }
+            break;
         }
     }
 }
@@ -235,6 +258,15 @@ sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance
     case Level::UP_RIGHT_TURN:
         mod = {4, 0};
         break;
+    case Level::HORIZONTAL_OPENED_RIGHT:
+        mod = {4, 2};
+        break;
+    case Level::VERTICAL_OPENED_TOP:
+        mod = {4, 0};
+        break;
+    case Level::VERTICAL_OPENED_BOTTOM:
+        mod = {0, 2};
+        break;
     case Level::PLAYER:
         mod = {20, -8};
     }
@@ -260,13 +292,13 @@ void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
 
-    if (field.fieldFunction == FINISH) {
-        const SpriteInfo &fieldSpriteInfo = Tileset::spaceCraft3_NE; // TODO this probably should not be hardcoded
-        vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
-        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
-        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
-        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
-    }
+//    if (field.fieldFunction == FINISH) {
+//        const SpriteInfo &fieldSpriteInfo = Tileset::spaceCraft3_NE; // TODO this probably should not be hardcoded
+//        vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
+//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
+//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
+//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
+//    }
 }
 
 void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const

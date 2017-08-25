@@ -56,6 +56,7 @@ public:
 
 private:
     void loadMapFromFile(std::string fileName);
+    void closeMapBorders();
     void parseRow(int index, std::string row);
     void addNewField(int row, int column, Field field);
     Field& getField(int row, int column);
@@ -76,24 +77,24 @@ private:
         } face = TOP;
     } player;
 
-    struct CanMove { // couldn't create a namespace
-        static const int TOP = 1;
-        static const int RIGHT = 2;
-        static const int BOTTOM = 4;
-        static const int LEFT = 8;
+    enum Direction { // TODO duplicate with Player::Face?
+        TOP = 1,
+        RIGHT = 2,
+        BOTTOM = 4,
+        LEFT = 8
     };
 
     const std::map<FieldAppearance, int> fieldMovementInfo {
-        { VERTICAL,                CanMove::TOP | CanMove::BOTTOM },
-        { VERTICAL_OPENED_TOP,     CanMove::TOP },
-        { VERTICAL_OPENED_BOTTOM,  CanMove::BOTTOM },
-        { HORIZONTAL,              CanMove::LEFT | CanMove::RIGHT },
-        { HORIZONTAL_OPENED_LEFT,  CanMove::LEFT },
-        { HORIZONTAL_OPENED_RIGHT, CanMove::RIGHT },
-        { UP_RIGHT_TURN,           CanMove::TOP | CanMove::RIGHT },
-        { LEFT_UP_TURN,            CanMove::TOP | CanMove::LEFT },
-        { DOWN_RIGHT_TURN,         CanMove::BOTTOM | CanMove::RIGHT },
-        { LEFT_DOWN_TURN,          CanMove::BOTTOM | CanMove::LEFT }
+        { VERTICAL,                Direction::TOP | Direction::BOTTOM },
+        { VERTICAL_OPENED_TOP,     Direction::TOP },
+        { VERTICAL_OPENED_BOTTOM,  Direction::BOTTOM },
+        { HORIZONTAL,              Direction::LEFT | Direction::RIGHT },
+        { HORIZONTAL_OPENED_LEFT,  Direction::LEFT },
+        { HORIZONTAL_OPENED_RIGHT, Direction::RIGHT },
+        { UP_RIGHT_TURN,           Direction::TOP | Direction::RIGHT },
+        { LEFT_UP_TURN,            Direction::TOP | Direction::LEFT },
+        { DOWN_RIGHT_TURN,         Direction::BOTTOM | Direction::RIGHT },
+        { LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
     };
 
     LevelMap_t map;
