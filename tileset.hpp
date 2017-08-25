@@ -30,5 +30,6 @@ const SpriteInfo metalTileConnectEnd_NE = { 72, 54, { sf::Vector2f(992, 0), sf::
 const SpriteInfo metalTileConnectSide_NE = { 76, 55, { sf::Vector2f(1064, 0), sf::Vector2f(1140, 0), sf::Vector2f(1140, 55), sf::Vector2f(1064, 55) } };
 const SpriteInfo metalTileConnectEnd_SE = { 72, 54, { sf::Vector2f(1140, 0), sf::Vector2f(1212, 0), sf::Vector2f(1212, 54), sf::Vector2f(1140, 54) } };
 const SpriteInfo metalTileConnectSide_SE = { 76, 55, { sf::Vector2f(1212, 0), sf::Vector2f(1288, 0), sf::Vector2f(1288, 55), sf::Vector2f(1212, 55) } };
+const SpriteInfo spaceCraft3_NE = { 78, 58, { sf::Vector2f(1288, 0), sf::Vector2f(1366, 0), sf::Vector2f(1366, 58), sf::Vector2f(1288, 58) } };
 
 }

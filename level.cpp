@@ -6,9 +6,11 @@
 
 #include <iostream>
 
+#include "tileset.hpp" // TODO remove when no longer needed
 
-Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t spriteInfo) {
-    this->spriteInfo = spriteInfo;
+
+Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo) {
+    this->fieldsSpriteInfo = fieldsSpriteInfo;
 
     tileset.loadFromFile(tilesetFilePath);
     tileset.setSmooth(true);
@@ -18,15 +20,8 @@ Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceT
     loadMapFromFile(fileName);
 
     for (auto &pair : map) {
-        addFieldToVertexArray(pair.second.fieldAppearance, {pair.first.second, pair.first.first});
+        addFieldToVertexArray(pair.second, {pair.first.second, pair.first.first});
     }
-
-//    addFieldToVertexArray(DOWN_RIGHT_TURN, sf::Vector2f(308, 124));
-//    addFieldToVertexArray(VERTICAL, sf::Vector2f(271, 148));
-//    addFieldToVertexArray(HORIZONTAL, sf::Vector2f(345, 148));
-//    addFieldToVertexArray(VERTICAL, sf::Vector2f(234, 174));
-//    addFieldToVertexArray(VERTICAL_OPENED_TOP, sf::Vector2f(200, 200));
-    // addFieldToVertexArray(Tileset::alien_NE, sf::Vector2f(217, 193));
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -39,6 +34,9 @@ void Level::loadMapFromFile(std::string fileName) {
                   << "," << pair.first.second << ") – "
                   << pair.second.fieldAppearance << ", "
                   << pair.second.fieldFunction << "\n";
+        if (pair.second.fieldFunction == START) {
+            player.pos = { pair.first.second, pair.first.first };
+        }
     }
 }
 
@@ -142,13 +140,15 @@ void Level::setFieldFunction(int row, int column, FieldFunction function) {
 
 sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance fieldAppearance) {
     sf::Vector2f mod(0, 0);
-    switch(fieldAppearance) {
+    switch(fieldAppearance) { // TODO this should probably be outside of the class
     case Level::DOWN_RIGHT_TURN:
         mod = {0, 2};
         break;
     case Level::UP_RIGHT_TURN:
         mod = {4, 0};
         break;
+    case Level::PLAYER:
+        mod = {20, -8};
     }
 
     sf::Vector2f iso((cartesian.x - cartesian.y) * 38, (cartesian.x + cartesian.y) / 1.43f * 38);
@@ -156,16 +156,29 @@ sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance
     return iso + mod;
 }
 
-void Level::addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f pos) {
-    pos.x += 8;
+void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
+    pos.x += 8; // TODO normalize coordinate system
     pos.y -= 2;
-    auto leftTopPos = cartesianToIsometric(pos, fieldAppearance);
+    auto leftTopPos = cartesianToIsometric(pos, field.fieldAppearance);
 
-    SpriteInfo &spriteInfo = this->spriteInfo[fieldAppearance];
-    vertices.append(sf::Vertex(leftTopPos, spriteInfo.texCoords.top_left));
-    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y), spriteInfo.texCoords.top_right));
-    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_right));
-    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + spriteInfo.height), spriteInfo.texCoords.bottom_left));
+    sf::Color color(255, 255, 255);
+//    switch (field.???) {
+//        // TODO not activated in black?
+//    }
+
+    SpriteInfo &fieldSpriteInfo = fieldsSpriteInfo[field.fieldAppearance];
+    vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
+    vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
+
+    if (field.fieldFunction == FINISH) {
+        const SpriteInfo &fieldSpriteInfo = Tileset::spaceCraft3_NE; // TODO this probably should not be hardcoded
+        vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
+    }
 }
 
 void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -174,4 +187,19 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     states.texture = &tileset;
 
     target.draw(vertices, states);
+
+    sf::VertexArray playerVertices;
+    playerVertices.setPrimitiveType(sf::Quads);
+
+    const SpriteInfo &playerSpriteInfo = Tileset::astronaut_NE; // TODO this probably should not be hardcoded
+
+    // TODO normalize coordinate system:
+    sf::Vector2f leftTopPos = cartesianToIsometric({player.pos.x + 8, player.pos.y - 2}, PLAYER);
+
+    playerVertices.append(sf::Vertex(leftTopPos, playerSpriteInfo.texCoords.top_left));
+    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y), playerSpriteInfo.texCoords.top_right));
+    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_right));
+    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_left));
+
+    target.draw(playerVertices, states);
 }

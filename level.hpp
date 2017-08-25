@@ -23,7 +23,11 @@ public:
         UP_RIGHT_TURN,
         LEFT_UP_TURN,
         DOWN_RIGHT_TURN,
-        LEFT_DOWN_TURN
+        LEFT_DOWN_TURN,
+
+        // TODO refactor needed
+
+        PLAYER
     };
 
     enum FieldFunction {
@@ -40,19 +44,30 @@ public:
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
     typedef std::map<FieldAppearance, SpriteInfo> FieldAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t spriteInfo);
+    Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo);
 
 private:
     void loadMapFromFile(std::string fileName);
     void parseRow(int index, std::string row);
     void addNewField(int row, int column, Field field);
     void setFieldFunction(int row, int column, FieldFunction function);
-    void addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f pos);
+    void addFieldToVertexArray(Field fieldAppearance, sf::Vector2f pos);
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:
+
+    struct {
+        sf::Vector2f pos;
+        enum {
+            TOP,
+            BOTTOM,
+            LEFT,
+            RIGHT
+        } face = TOP;
+    } player;
+
     LevelMap_t map;
     sf::Texture tileset;
-    FieldAppearanceToSpriteInfoMap_t spriteInfo;
+    FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo;
     sf::VertexArray vertices;
 };
