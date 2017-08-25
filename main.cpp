@@ -23,7 +23,7 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
-    auto level = Level("1.txt", "assets/tileset.png", {
+    auto level = Level("2.txt", "assets/tileset.png", {
         { Level::FieldAppearance::VERTICAL, Tileset::metalTileConnectStraight_NE },
         { Level::FieldAppearance::VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
         { Level::FieldAppearance::VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },

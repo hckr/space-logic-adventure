@@ -3,6 +3,7 @@
 #include <fstream>
 #include <tuple>
 #include <cctype>
+#include <stdexcept>
 
 #include <iostream>
 
@@ -28,39 +29,74 @@ int modulo(int x, int N) {
     return (x % N + N) % N;
 }
 
-void Level::movePlayer(PlayerMove move) {
-    switch(move) {
-    case FRONT:
-    case BACK:
-    {
-        float *valueToChange = 0;
-        switch (player.face) {
-        case Player::TOP:
-        case Player::BOTTOM:
-            valueToChange = &player.pos.y;
-            break;
-        case Player::LEFT:
-        case Player::RIGHT:
-            valueToChange = &player.pos.x;
-            break;
-        }
-        float valueChange = 0;
-        switch (player.face) {
-        case Player::TOP:
-        case Player::LEFT:
-            valueChange = -1;
-            break;
-        case Player::BOTTOM:
-        case Player::RIGHT:
-            valueChange = 1;
-            break;
-        }
-        if (move == BACK) {
-            valueChange *= -1;
-        }
-        *valueToChange += valueChange;
-        break;
+bool Level::movePlayer(PlayerMove move) {
+    int availableMoves;
+    try {
+        availableMoves = fieldMovementInfo.at(getField(player.pos.y, player.pos.x).fieldAppearance);
+    } catch (std::out_of_range) {
+        return false;
     }
+    auto checkBitmask = [&availableMoves](int move) {
+        return (availableMoves & move) == move;
+    };
+
+    switch (move) {
+    case FRONT:
+        switch (player.face) {
+        case Player::TOP:
+            if(!checkBitmask(CanMove::TOP)) {
+                return false;
+            }
+            player.pos.y -= 1;
+            break;
+        case Player::RIGHT:
+            if(!checkBitmask(CanMove::RIGHT)) {
+                return false;
+            }
+            player.pos.x += 1;
+            break;
+        case Player::BOTTOM:
+            if(!checkBitmask(CanMove::BOTTOM)) {
+                return false;
+            }
+            player.pos.y += 1;
+            break;
+        case Player::LEFT:
+            if(!checkBitmask(CanMove::LEFT)) {
+                return false;
+            }
+            player.pos.x -= 1;
+            break;
+        }
+        break;
+    case BACK:
+        switch (player.face) {
+        case Player::TOP:
+            if(!checkBitmask(CanMove::BOTTOM)) {
+                return false;
+            }
+            player.pos.y += 1;
+            break;
+        case Player::RIGHT:
+            if(!checkBitmask(CanMove::LEFT)) {
+                return false;
+            }
+            player.pos.x -= 1;
+            break;
+        case Player::BOTTOM:
+            if(!checkBitmask(CanMove::TOP)) {
+                return false;
+            }
+            player.pos.y -= 1;
+            break;
+        case Player::LEFT:
+            if(!checkBitmask(CanMove::RIGHT)) {
+                return false;
+            }
+            player.pos.x += 1;
+            break;
+        }
+        break;
     case ROTATE_CLOCKWISE:
         player.face = static_cast<Player::Face>((static_cast<int>(player.face) + 1) % Player::Face::COUNT);
         break;
@@ -68,6 +104,8 @@ void Level::movePlayer(PlayerMove move) {
         player.face = static_cast<Player::Face>(modulo(static_cast<int>(player.face) - 1, Player::Face::COUNT));
         break;
     }
+
+    return true;
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -175,6 +213,10 @@ void Level::parseRow(int index, std::string row) {
 
 void Level::addNewField(int row, int column, Field field) {
     map[std::make_pair(row, column)] = field;
+}
+
+Level::Field& Level::getField(int row, int column) {
+    return map.at(std::make_pair(row, column));
 }
 
 void Level::setFieldFunction(int row, int column, FieldFunction function) {

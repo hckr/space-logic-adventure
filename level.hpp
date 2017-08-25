@@ -52,12 +52,13 @@ public:
     typedef std::map<FieldAppearance, SpriteInfo> FieldAppearanceToSpriteInfoMap_t;
 
     Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo);
-    void movePlayer(PlayerMove move);
+    bool movePlayer(PlayerMove move);
 
 private:
     void loadMapFromFile(std::string fileName);
     void parseRow(int index, std::string row);
     void addNewField(int row, int column, Field field);
+    Field& getField(int row, int column);
     void setFieldFunction(int row, int column, FieldFunction function);
     void addFieldToVertexArray(Field fieldAppearance, sf::Vector2f pos);
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -74,6 +75,26 @@ private:
             COUNT // utility
         } face = TOP;
     } player;
+
+    struct CanMove { // couldn't create a namespace
+        static const int TOP = 1;
+        static const int RIGHT = 2;
+        static const int BOTTOM = 4;
+        static const int LEFT = 8;
+    };
+
+    const std::map<FieldAppearance, int> fieldMovementInfo {
+        { VERTICAL,                CanMove::TOP | CanMove::BOTTOM },
+        { VERTICAL_OPENED_TOP,     CanMove::TOP },
+        { VERTICAL_OPENED_BOTTOM,  CanMove::BOTTOM },
+        { HORIZONTAL,              CanMove::LEFT | CanMove::RIGHT },
+        { HORIZONTAL_OPENED_LEFT,  CanMove::LEFT },
+        { HORIZONTAL_OPENED_RIGHT, CanMove::RIGHT },
+        { UP_RIGHT_TURN,           CanMove::TOP | CanMove::RIGHT },
+        { LEFT_UP_TURN,            CanMove::TOP | CanMove::LEFT },
+        { DOWN_RIGHT_TURN,         CanMove::BOTTOM | CanMove::RIGHT },
+        { LEFT_DOWN_TURN,          CanMove::BOTTOM | CanMove::LEFT }
+    };
 
     LevelMap_t map;
     sf::Texture tileset;
