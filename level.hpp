@@ -47,7 +47,7 @@ private:
     void parseRow(int index, std::string row);
     void addNewField(int row, int column, Field field);
     void setFieldFunction(int row, int column, FieldFunction function);
-    void addFieldToVertexArray(FieldAppearance spriteInfo, sf::Vector2f leftTopPos);
+    void addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f pos);
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:

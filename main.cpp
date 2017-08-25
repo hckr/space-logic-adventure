@@ -13,7 +13,7 @@ auto createCenteredWindow(int width, int height) {
 }
 
 int main() {
-    auto window = createCenteredWindow(1024, 768);
+    auto window = createCenteredWindow(860, 700);
     
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");

@@ -17,11 +17,15 @@ Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceT
 
     loadMapFromFile(fileName);
 
-    addFieldToVertexArray(DOWN_RIGHT_TURN, sf::Vector2f(308, 124));
-    addFieldToVertexArray(VERTICAL, sf::Vector2f(271, 148));
-    addFieldToVertexArray(HORIZONTAL, sf::Vector2f(345, 148));
-    addFieldToVertexArray(VERTICAL, sf::Vector2f(234, 174));
-    addFieldToVertexArray(VERTICAL_OPENED_TOP, sf::Vector2f(200, 200));
+    for (auto &pair : map) {
+        addFieldToVertexArray(pair.second.fieldAppearance, {pair.first.second, pair.first.first});
+    }
+
+//    addFieldToVertexArray(DOWN_RIGHT_TURN, sf::Vector2f(308, 124));
+//    addFieldToVertexArray(VERTICAL, sf::Vector2f(271, 148));
+//    addFieldToVertexArray(HORIZONTAL, sf::Vector2f(345, 148));
+//    addFieldToVertexArray(VERTICAL, sf::Vector2f(234, 174));
+//    addFieldToVertexArray(VERTICAL_OPENED_TOP, sf::Vector2f(200, 200));
     // addFieldToVertexArray(Tileset::alien_NE, sf::Vector2f(217, 193));
 }
 
@@ -90,6 +94,11 @@ void Level::parseRow(int index, std::string row) {
                     expectCharAtIndex(row, index, i, '\\');
                     addNewField(index, column, {LEFT_DOWN_TURN});
                     break;
+                case 'x':
+                    // do nothing except incerement column number
+                    fieldAdded = true;
+                    fieldFunctionSet = true;
+                    break;
                 default:
                     unexpectedChar(index, i, c);
                 }
@@ -131,7 +140,27 @@ void Level::setFieldFunction(int row, int column, FieldFunction function) {
     }
 }
 
-void Level::addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f leftTopPos) {
+sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance fieldAppearance) {
+    sf::Vector2f mod(0, 0);
+    switch(fieldAppearance) {
+    case Level::DOWN_RIGHT_TURN:
+        mod = {0, 2};
+        break;
+    case Level::UP_RIGHT_TURN:
+        mod = {4, 0};
+        break;
+    }
+
+    sf::Vector2f iso((cartesian.x - cartesian.y) * 38, (cartesian.x + cartesian.y) / 1.43f * 38);
+
+    return iso + mod;
+}
+
+void Level::addFieldToVertexArray(FieldAppearance fieldAppearance, sf::Vector2f pos) {
+    pos.x += 8;
+    pos.y -= 2;
+    auto leftTopPos = cartesianToIsometric(pos, fieldAppearance);
+
     SpriteInfo &spriteInfo = this->spriteInfo[fieldAppearance];
     vertices.append(sf::Vertex(leftTopPos, spriteInfo.texCoords.top_left));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + spriteInfo.width, leftTopPos.y), spriteInfo.texCoords.top_right));
