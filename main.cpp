@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <SFML/Graphics.hpp>
+
 #include "tileset.hpp"
 #include "level.hpp"
 
@@ -38,8 +39,25 @@ int main() {
     while (window->isOpen()) {
         sf::Event event;
         while (window->pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+            switch (event.type) {
+            case sf::Event::Closed:
                 window->close();
+                break;
+            case sf::Event::KeyPressed:
+                switch (event.key.code) {
+                case sf::Keyboard::Left:
+                    level.movePlayer(Level::ROTATE_COUNTERCLOCKWISE);
+                    break;
+                case sf::Keyboard::Right:
+                    level.movePlayer(Level::ROTATE_CLOCKWISE);
+                    break;
+                case sf::Keyboard::Up:
+                    level.movePlayer(Level::FRONT);
+                    break;
+                case sf::Keyboard::Down:
+                    level.movePlayer(Level::BACK);
+                    break;
+                }
             }
         }
         window->draw(background_sp);

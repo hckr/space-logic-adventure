@@ -24,6 +24,52 @@ Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceT
     }
 }
 
+int modulo(int x, int N) {
+    return (x % N + N) % N;
+}
+
+void Level::movePlayer(PlayerMove move) {
+    switch(move) {
+    case FRONT:
+    case BACK:
+    {
+        float *valueToChange = 0;
+        switch (player.face) {
+        case Player::TOP:
+        case Player::BOTTOM:
+            valueToChange = &player.pos.y;
+            break;
+        case Player::LEFT:
+        case Player::RIGHT:
+            valueToChange = &player.pos.x;
+            break;
+        }
+        float valueChange = 0;
+        switch (player.face) {
+        case Player::TOP:
+        case Player::LEFT:
+            valueChange = -1;
+            break;
+        case Player::BOTTOM:
+        case Player::RIGHT:
+            valueChange = 1;
+            break;
+        }
+        if (move == BACK) {
+            valueChange *= -1;
+        }
+        *valueToChange += valueChange;
+        break;
+    }
+    case ROTATE_CLOCKWISE:
+        player.face = static_cast<Player::Face>((static_cast<int>(player.face) + 1) % Player::Face::COUNT);
+        break;
+    case ROTATE_COUNTERCLOCKWISE:
+        player.face = static_cast<Player::Face>(modulo(static_cast<int>(player.face) - 1, Player::Face::COUNT));
+        break;
+    }
+}
+
 void Level::loadMapFromFile(std::string fileName) {
     std::ifstream file(LEVELS_DIR + fileName);
     for (auto [i, line] = std::make_tuple(0, std::string()); std::getline(file, line); ++i) {
@@ -191,7 +237,22 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     sf::VertexArray playerVertices;
     playerVertices.setPrimitiveType(sf::Quads);
 
-    const SpriteInfo &playerSpriteInfo = Tileset::astronaut_NE; // TODO this probably should not be hardcoded
+    // TODO this probably should not be hardcoded:
+    SpriteInfo playerSpriteInfo;
+    switch(player.face) {
+    case Player::TOP:
+        playerSpriteInfo = Tileset::astronaut_NE;
+        break;
+    case Player::BOTTOM:
+        playerSpriteInfo = Tileset::astronaut_SW;
+        break;
+    case Player::LEFT:
+        playerSpriteInfo = Tileset::astronaut_NW;
+        break;
+    case Player::RIGHT:
+        playerSpriteInfo = Tileset::astronaut_SE;
+        break;
+    }
 
     // TODO normalize coordinate system:
     sf::Vector2f leftTopPos = cartesianToIsometric({player.pos.x + 8, player.pos.y - 2}, PLAYER);

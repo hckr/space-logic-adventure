@@ -41,10 +41,18 @@ public:
         FieldFunction fieldFunction = NORMAL;
     };
 
+    enum PlayerMove {
+        FRONT,
+        BACK,
+        ROTATE_CLOCKWISE,
+        ROTATE_COUNTERCLOCKWISE
+    };
+
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
     typedef std::map<FieldAppearance, SpriteInfo> FieldAppearanceToSpriteInfoMap_t;
 
     Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo);
+    void movePlayer(PlayerMove move);
 
 private:
     void loadMapFromFile(std::string fileName);
@@ -56,13 +64,14 @@ private:
 
 private:
 
-    struct {
+    struct Player {
         sf::Vector2f pos;
-        enum {
+        enum Face {
             TOP,
+            RIGHT,
             BOTTOM,
             LEFT,
-            RIGHT
+            COUNT // utility
         } face = TOP;
     } player;
 
