@@ -13,21 +13,24 @@ const std::string LEVELS_DIR = "assets/levels/";
 class Level : public sf::Drawable, public sf::Transformable {
 public:
 
-    enum FieldAppearance {
-        VERTICAL,
-        VERTICAL_OPENED_TOP,
-        VERTICAL_OPENED_BOTTOM,
-        HORIZONTAL,
-        HORIZONTAL_OPENED_LEFT,
-        HORIZONTAL_OPENED_RIGHT,
-        UP_RIGHT_TURN,
-        LEFT_UP_TURN,
-        DOWN_RIGHT_TURN,
-        LEFT_DOWN_TURN,
+    enum TileAppearance {
+        FIELD_VERTICAL,
+        FIELD_VERTICAL_OPENED_TOP,
+        FIELD_VERTICAL_OPENED_BOTTOM,
+        FIELD_HORIZONTAL,
+        FIELD_HORIZONTAL_OPENED_LEFT,
+        FIELD_HORIZONTAL_OPENED_RIGHT,
+        FIELD_UP_RIGHT_TURN,
+        FIELD_LEFT_UP_TURN,
+        FIELD_DOWN_RIGHT_TURN,
+        FIELD_LEFT_DOWN_TURN,
 
-        // TODO refactor needed
+        PLAYER_FACED_TOP,
+        PLAYER_FACED_BOTTOM,
+        PLAYER_FACED_LEFT,
+        PLAYER_FACED_RIGHT,
 
-        PLAYER
+        FINISH_OVERLAY
     };
 
     enum FieldFunction {
@@ -37,7 +40,7 @@ public:
     };
 
     struct Field {
-        FieldAppearance fieldAppearance;
+        TileAppearance tileAppearance;
         FieldFunction fieldFunction = NORMAL;
     };
 
@@ -49,9 +52,9 @@ public:
     };
 
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
-    typedef std::map<FieldAppearance, SpriteInfo> FieldAppearanceToSpriteInfoMap_t;
+    typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo);
+    Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo);
     bool movePlayer(PlayerMove move);
 
 private:
@@ -61,7 +64,7 @@ private:
     void addNewField(int row, int column, Field field);
     Field& getField(int row, int column);
     void setFieldFunction(int row, int column, FieldFunction function);
-    void addFieldToVertexArray(Field fieldAppearance, sf::Vector2f pos);
+    void addFieldToVertexArray(Field field, sf::Vector2f pos);
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:
@@ -84,21 +87,21 @@ private:
         LEFT = 8
     };
 
-    const std::map<FieldAppearance, int> fieldMovementInfo {
-        { VERTICAL,                Direction::TOP | Direction::BOTTOM },
-        { VERTICAL_OPENED_TOP,     Direction::TOP },
-        { VERTICAL_OPENED_BOTTOM,  Direction::BOTTOM },
-        { HORIZONTAL,              Direction::LEFT | Direction::RIGHT },
-        { HORIZONTAL_OPENED_LEFT,  Direction::LEFT },
-        { HORIZONTAL_OPENED_RIGHT, Direction::RIGHT },
-        { UP_RIGHT_TURN,           Direction::TOP | Direction::RIGHT },
-        { LEFT_UP_TURN,            Direction::TOP | Direction::LEFT },
-        { DOWN_RIGHT_TURN,         Direction::BOTTOM | Direction::RIGHT },
-        { LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
+    const std::map<TileAppearance, int> fieldMovementInfo {
+        { FIELD_VERTICAL,                Direction::TOP | Direction::BOTTOM },
+        { FIELD_VERTICAL_OPENED_TOP,     Direction::TOP },
+        { FIELD_VERTICAL_OPENED_BOTTOM,  Direction::BOTTOM },
+        { FIELD_HORIZONTAL,              Direction::LEFT | Direction::RIGHT },
+        { FIELD_HORIZONTAL_OPENED_LEFT,  Direction::LEFT },
+        { FIELD_HORIZONTAL_OPENED_RIGHT, Direction::RIGHT },
+        { FIELD_UP_RIGHT_TURN,           Direction::TOP | Direction::RIGHT },
+        { FIELD_LEFT_UP_TURN,            Direction::TOP | Direction::LEFT },
+        { FIELD_DOWN_RIGHT_TURN,         Direction::BOTTOM | Direction::RIGHT },
+        { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
     };
 
     LevelMap_t map;
     sf::Texture tileset;
-    FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo;
+    TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
     sf::VertexArray vertices;
 };

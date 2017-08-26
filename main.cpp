@@ -24,16 +24,21 @@ int main() {
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
     auto level = Level("2.txt", "assets/tileset.png", {
-        { Level::FieldAppearance::VERTICAL, Tileset::metalTileConnectStraight_NE },
-        { Level::FieldAppearance::VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
-        { Level::FieldAppearance::VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },
-        { Level::FieldAppearance::HORIZONTAL, Tileset::metalTileConnectStraight_NW },
-        { Level::FieldAppearance::HORIZONTAL_OPENED_LEFT, Tileset::metalTileConnectEnd_NW },
-        { Level::FieldAppearance::HORIZONTAL_OPENED_RIGHT, Tileset::metalTileConnectEnd_SW },
-        { Level::FieldAppearance::UP_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SE },
-        { Level::FieldAppearance::LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
-        { Level::FieldAppearance::DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
-        { Level::FieldAppearance::LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
+        { Level::TileAppearance::FIELD_VERTICAL, Tileset::metalTileConnectStraight_NE },
+        { Level::TileAppearance::FIELD_VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
+        { Level::TileAppearance::FIELD_VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },
+        { Level::TileAppearance::FIELD_HORIZONTAL, Tileset::metalTileConnectStraight_NW },
+        { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_LEFT, Tileset::metalTileConnectEnd_NW },
+        { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_RIGHT, Tileset::metalTileConnectEnd_SW },
+        { Level::TileAppearance::FIELD_UP_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SE },
+        { Level::TileAppearance::FIELD_LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
+        { Level::TileAppearance::FIELD_DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
+        { Level::TileAppearance::FIELD_LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
+        { Level::TileAppearance::PLAYER_FACED_TOP, Tileset::astronaut_NE },
+        { Level::TileAppearance::PLAYER_FACED_BOTTOM, Tileset::astronaut_SW },
+        { Level::TileAppearance::PLAYER_FACED_LEFT, Tileset::astronaut_NW },
+        { Level::TileAppearance::PLAYER_FACED_RIGHT, Tileset::astronaut_SE },
+        { Level::TileAppearance::FINISH_OVERLAY, Tileset::spaceCraft3_NE }
     });
 
     while (window->isOpen()) {

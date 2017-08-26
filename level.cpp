@@ -7,11 +7,9 @@
 
 #include <iostream>
 
-#include "tileset.hpp" // TODO remove when no longer needed
 
-
-Level::Level(std::string fileName, std::string tilesetFilePath, FieldAppearanceToSpriteInfoMap_t fieldsSpriteInfo) {
-    this->fieldsSpriteInfo = fieldsSpriteInfo;
+Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t fieldsSpriteInfo) {
+    this->tilesSpriteInfo = fieldsSpriteInfo;
 
     tileset.loadFromFile(tilesetFilePath);
     tileset.setSmooth(true);
@@ -33,7 +31,7 @@ int modulo(int x, int N) {
 bool Level::movePlayer(PlayerMove move) {
     int availableMoves;
     try {
-        availableMoves = fieldMovementInfo.at(getField(player.pos.y, player.pos.x).fieldAppearance);
+        availableMoves = fieldMovementInfo.at(getField(player.pos.y, player.pos.x).tileAppearance);
     } catch (std::out_of_range) {
         return false;
     }
@@ -117,7 +115,7 @@ void Level::loadMapFromFile(std::string fileName) {
     for (auto &pair : map) {
         std::cout << "(" << pair.first.first
                   << "," << pair.first.second << ") – "
-                  << pair.second.fieldAppearance << ", "
+                  << pair.second.tileAppearance << ", "
                   << pair.second.fieldFunction << "\n";
         if (pair.second.fieldFunction == START) {
             player.pos = { pair.first.second, pair.first.first };
@@ -128,19 +126,19 @@ void Level::loadMapFromFile(std::string fileName) {
 void Level::closeMapBorders() {
     for (auto& [coords, field] : map) {
         auto& [row, column] = coords;
-        switch (field.fieldAppearance) {
-        case VERTICAL:
+        switch (field.tileAppearance) {
+        case FIELD_VERTICAL:
             if (map.count(std::make_pair(row - 1, column)) == 0) {
-                field.fieldAppearance = VERTICAL_OPENED_BOTTOM;
+                field.tileAppearance = FIELD_VERTICAL_OPENED_BOTTOM;
             } else if (map.count(std::make_pair(row + 1, column)) == 0) {
-                field.fieldAppearance = VERTICAL_OPENED_TOP;
+                field.tileAppearance = FIELD_VERTICAL_OPENED_TOP;
             }
             break;
-        case HORIZONTAL:
+        case FIELD_HORIZONTAL:
             if (map.count(std::make_pair(row, column - 1)) == 0) {
-                field.fieldAppearance = HORIZONTAL_OPENED_RIGHT;
+                field.tileAppearance = FIELD_HORIZONTAL_OPENED_RIGHT;
             } else if (map.count(std::make_pair(row, column + 1)) == 0) {
-                field.fieldAppearance = HORIZONTAL_OPENED_LEFT;
+                field.tileAppearance = FIELD_HORIZONTAL_OPENED_LEFT;
             }
             break;
         }
@@ -172,32 +170,30 @@ void Level::parseRow(int index, std::string row) {
             if (!fieldAdded) {
                 switch (c) {
                 case '|':
-                    addNewField(index, column, {VERTICAL});
-                    fieldAdded = true;
+                    addNewField(index, column, {FIELD_VERTICAL});
                     break;
                 case '-':
-                    addNewField(index, column, {HORIZONTAL});
-                    fieldAdded = true;
+                    addNewField(index, column, {FIELD_HORIZONTAL});
                     break;
                 case '\\':
                     i += 1;
                     expectCharAtIndex(row, index, i, '_');
-                    addNewField(index, column, {UP_RIGHT_TURN});
+                    addNewField(index, column, {FIELD_UP_RIGHT_TURN});
                     break;
                 case '_':
                     i += 1;
                     expectCharAtIndex(row, index, i, '/');
-                    addNewField(index, column, {LEFT_UP_TURN});
+                    addNewField(index, column, {FIELD_LEFT_UP_TURN});
                     break;
                 case '/':
                     i += 1;
                     expectCharAtIndex(row, index, i, '~');
-                    addNewField(index, column, {DOWN_RIGHT_TURN});
+                    addNewField(index, column, {FIELD_DOWN_RIGHT_TURN});
                     break;
                 case '~':
                     i += 1;
                     expectCharAtIndex(row, index, i, '\\');
-                    addNewField(index, column, {LEFT_DOWN_TURN});
+                    addNewField(index, column, {FIELD_LEFT_DOWN_TURN});
                     break;
                 case 'x':
                     // do nothing except incerement column number
@@ -244,31 +240,35 @@ Level::Field& Level::getField(int row, int column) {
 
 void Level::setFieldFunction(int row, int column, FieldFunction function) {
     Field &field = map[std::make_pair(row, column)];
-    if (field.fieldAppearance == VERTICAL || field.fieldAppearance == HORIZONTAL) {
+    if (field.tileAppearance == FIELD_VERTICAL || field.tileAppearance == FIELD_HORIZONTAL) {
         field.fieldFunction = function;
     }
 }
 
-sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance fieldAppearance) {
+sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::TileAppearance tileAppearance) {
     sf::Vector2f mod(0, 0);
-    switch(fieldAppearance) { // TODO this should probably be outside of the class
-    case Level::DOWN_RIGHT_TURN:
+    switch(tileAppearance) { // TODO this should probably be outside of the class
+    case Level::FIELD_DOWN_RIGHT_TURN:
         mod = {0, 2};
         break;
-    case Level::UP_RIGHT_TURN:
+    case Level::FIELD_UP_RIGHT_TURN:
         mod = {4, 0};
         break;
-    case Level::HORIZONTAL_OPENED_RIGHT:
+    case Level::FIELD_HORIZONTAL_OPENED_RIGHT:
         mod = {4, 2};
         break;
-    case Level::VERTICAL_OPENED_TOP:
+    case Level::FIELD_VERTICAL_OPENED_TOP:
         mod = {4, 0};
         break;
-    case Level::VERTICAL_OPENED_BOTTOM:
+    case Level::FIELD_VERTICAL_OPENED_BOTTOM:
         mod = {0, 2};
         break;
-    case Level::PLAYER:
+    case Level::PLAYER_FACED_TOP:
+    case Level::PLAYER_FACED_BOTTOM:
+    case Level::PLAYER_FACED_LEFT:
+    case Level::PLAYER_FACED_RIGHT:
         mod = {20, -8};
+        break;
     }
 
     sf::Vector2f iso((cartesian.x - cartesian.y) * 38, (cartesian.x + cartesian.y) / 1.43f * 38);
@@ -279,26 +279,26 @@ sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::FieldAppearance
 void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
     pos.x += 8; // TODO normalize coordinate system
     pos.y -= 2;
-    auto leftTopPos = cartesianToIsometric(pos, field.fieldAppearance);
+    auto leftTopPos = cartesianToIsometric(pos, field.tileAppearance);
 
     sf::Color color(255, 255, 255);
 //    switch (field.???) {
 //        // TODO not activated in black?
 //    }
 
-    SpriteInfo &fieldSpriteInfo = fieldsSpriteInfo[field.fieldAppearance];
+    const SpriteInfo &fieldSpriteInfo = tilesSpriteInfo[field.tileAppearance];
     vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
 
-//    if (field.fieldFunction == FINISH) {
-//        const SpriteInfo &fieldSpriteInfo = Tileset::spaceCraft3_NE; // TODO this probably should not be hardcoded
-//        vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
-//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
-//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
-//        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
-//    }
+    if (field.fieldFunction == FINISH) {
+        const SpriteInfo &finishSpriteInfo = tilesSpriteInfo[TileAppearance::FINISH_OVERLAY];
+        vertices.append(sf::Vertex(leftTopPos, color, finishSpriteInfo.texCoords.top_left));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y), color, finishSpriteInfo.texCoords.top_right));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_right));
+        vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_left));
+    }
 }
 
 void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -311,25 +311,26 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     sf::VertexArray playerVertices;
     playerVertices.setPrimitiveType(sf::Quads);
 
-    // TODO this probably should not be hardcoded:
-    SpriteInfo playerSpriteInfo;
+    TileAppearance playerTileAppearance;
     switch(player.face) {
     case Player::TOP:
-        playerSpriteInfo = Tileset::astronaut_NE;
+        playerTileAppearance = PLAYER_FACED_TOP;
         break;
     case Player::BOTTOM:
-        playerSpriteInfo = Tileset::astronaut_SW;
+        playerTileAppearance = PLAYER_FACED_BOTTOM;
         break;
     case Player::LEFT:
-        playerSpriteInfo = Tileset::astronaut_NW;
+        playerTileAppearance = PLAYER_FACED_LEFT;
         break;
     case Player::RIGHT:
-        playerSpriteInfo = Tileset::astronaut_SE;
+        playerTileAppearance = PLAYER_FACED_RIGHT;
         break;
     }
 
+    const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
+
     // TODO normalize coordinate system:
-    sf::Vector2f leftTopPos = cartesianToIsometric({player.pos.x + 8, player.pos.y - 2}, PLAYER);
+    sf::Vector2f leftTopPos = cartesianToIsometric({player.pos.x + 8, player.pos.y - 2}, playerTileAppearance);
 
     playerVertices.append(sf::Vertex(leftTopPos, playerSpriteInfo.texCoords.top_left));
     playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y), playerSpriteInfo.texCoords.top_right));
