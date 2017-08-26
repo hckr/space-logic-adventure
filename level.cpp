@@ -1,4 +1,5 @@
 #include "level.hpp"
+
 #include <string>
 #include <fstream>
 #include <tuple>
@@ -8,9 +9,10 @@
 #include <iostream>
 
 
-Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t fieldsSpriteInfo) {
-    this->tilesSpriteInfo = fieldsSpriteInfo;
-
+Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo)
+    : tilesSpriteInfo(tilesSpriteInfo),
+      hero(this)
+{
     tileset.loadFromFile(tilesetFilePath);
     tileset.setSmooth(true);
 
@@ -31,7 +33,7 @@ int modulo(int x, int N) {
 bool Level::movePlayer(PlayerMove move) {
     int availableMoves;
     try {
-        availableMoves = fieldMovementInfo.at(getField(player.pos.y, player.pos.x).tileAppearance);
+        availableMoves = fieldMovementInfo.at(getField(hero.getPos().y, hero.getPos().x).tileAppearance);
     } catch (std::out_of_range) {
         return false;
     }
@@ -39,72 +41,108 @@ bool Level::movePlayer(PlayerMove move) {
         return (availableMoves & move) == move;
     };
 
+    sf::Vector2i newPos = hero.getPos();
+
     switch (move) {
     case FRONT:
-        switch (player.face) {
-        case Player::TOP:
+        switch (hero.face) {
+        case Hero::TOP:
             if(!checkBitmask(Direction::TOP)) {
                 return false;
             }
-            player.pos.y -= 1;
+            newPos.y = hero.getPos().y - 1;
             break;
-        case Player::RIGHT:
+        case Hero::RIGHT:
             if(!checkBitmask(Direction::RIGHT)) {
                 return false;
             }
-            player.pos.x += 1;
+            newPos.x = hero.getPos().x + 1;
             break;
-        case Player::BOTTOM:
+        case Hero::BOTTOM:
             if(!checkBitmask(Direction::BOTTOM)) {
                 return false;
             }
-            player.pos.y += 1;
+            newPos.y = hero.getPos().y + 1;
             break;
-        case Player::LEFT:
+        case Hero::LEFT:
             if(!checkBitmask(Direction::LEFT)) {
                 return false;
             }
-            player.pos.x -= 1;
+            newPos.x = hero.getPos().x - 1;
             break;
         }
         break;
     case BACK:
-        switch (player.face) {
-        case Player::TOP:
+        switch (hero.face) {
+        case Hero::TOP:
             if(!checkBitmask(Direction::BOTTOM)) {
                 return false;
             }
-            player.pos.y += 1;
+            newPos.y = hero.getPos().y + 1;
             break;
-        case Player::RIGHT:
+        case Hero::RIGHT:
             if(!checkBitmask(Direction::LEFT)) {
                 return false;
             }
-            player.pos.x -= 1;
+            newPos.x = hero.getPos().x - 1;
             break;
-        case Player::BOTTOM:
+        case Hero::BOTTOM:
             if(!checkBitmask(Direction::TOP)) {
                 return false;
             }
-            player.pos.y -= 1;
+            newPos.y = hero.getPos().y - 1;
             break;
-        case Player::LEFT:
+        case Hero::LEFT:
             if(!checkBitmask(Direction::RIGHT)) {
                 return false;
             }
-            player.pos.x += 1;
+            newPos.x = hero.getPos().x + 1;
             break;
         }
         break;
     case ROTATE_CLOCKWISE:
-        player.face = static_cast<Player::Face>((static_cast<int>(player.face) + 1) % Player::Face::COUNT);
-        break;
+        hero.face = static_cast<Hero::Face>((static_cast<int>(hero.face) + 1) % Hero::Face::COUNT);
+        return true;
     case ROTATE_COUNTERCLOCKWISE:
-        player.face = static_cast<Player::Face>(modulo(static_cast<int>(player.face) - 1, Player::Face::COUNT));
-        break;
+        hero.face = static_cast<Hero::Face>(modulo(static_cast<int>(hero.face) - 1, Hero::Face::COUNT));
+        return true;
     }
 
+    hero.setPos(newPos);
     return true;
+}
+
+void Level::update() {
+    const float fieldLifeTimeSeconds = 1;
+
+    for (auto& [coords, field] : map) {
+        if (field.stepped && field.active) {
+            float seconds = field.sinceStepped.getElapsedTime().asSeconds();
+            if (seconds >= fieldLifeTimeSeconds) {
+                field.active = false;
+                seconds = fieldLifeTimeSeconds;
+            }
+            modifyFieldVertices(field, [&](auto& vertex) {
+                vertex.color.a = int(255 * (1 - seconds / fieldLifeTimeSeconds));
+            });
+        }
+    }
+
+    Field &currentField = getField(hero.getPos().y, hero.getPos().x);
+
+    if (currentField.fieldFunction == FINISH) {
+        levelFinishedCallback();
+    } else if (currentField.active == false) {
+        gameOverCallback();
+    }
+}
+
+void Level::setGameOverCallback(std::function<void ()> callback) {
+    gameOverCallback = callback;
+}
+
+void Level::setLevelFinishedCallback(std::function<void ()> callback) {
+    levelFinishedCallback = callback;
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -118,7 +156,7 @@ void Level::loadMapFromFile(std::string fileName) {
                   << pair.second.tileAppearance << ", "
                   << pair.second.fieldFunction << "\n";
         if (pair.second.fieldFunction == START) {
-            player.pos = { pair.first.second, pair.first.first };
+            hero.setPos(sf::Vector2i(pair.first.second, pair.first.first));
         }
     }
 }
@@ -276,7 +314,7 @@ sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::TileAppearance 
     return iso + mod;
 }
 
-void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
+void Level::addFieldToVertexArray(Field &field, sf::Vector2f pos) {
     pos.x += 8; // TODO normalize coordinate system
     pos.y -= 2;
     auto leftTopPos = cartesianToIsometric(pos, field.tileAppearance);
@@ -288,6 +326,7 @@ void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
 
     const SpriteInfo &fieldSpriteInfo = tilesSpriteInfo[field.tileAppearance];
     vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
+    field.firstVertexIndex = vertices.getVertexCount() - 1;
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
@@ -298,6 +337,12 @@ void Level::addFieldToVertexArray(Field field, sf::Vector2f pos) {
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y), color, finishSpriteInfo.texCoords.top_right));
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_right));
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_left));
+    }
+}
+
+void Level::modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex) {
+    for (int i = 0; i < 4; ++i) {
+        modifyVertex(vertices[field.firstVertexIndex + i]);
     }
 }
 
@@ -312,25 +357,26 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     playerVertices.setPrimitiveType(sf::Quads);
 
     TileAppearance playerTileAppearance;
-    switch(player.face) {
-    case Player::TOP:
+    switch(hero.face) {
+    case Hero::TOP:
         playerTileAppearance = PLAYER_FACED_TOP;
         break;
-    case Player::BOTTOM:
+    case Hero::BOTTOM:
         playerTileAppearance = PLAYER_FACED_BOTTOM;
         break;
-    case Player::LEFT:
+    case Hero::LEFT:
         playerTileAppearance = PLAYER_FACED_LEFT;
         break;
-    case Player::RIGHT:
+    case Hero::RIGHT:
         playerTileAppearance = PLAYER_FACED_RIGHT;
         break;
     }
 
     const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
 
+    // TODO (see sf::VertexArray::getBounds() -- center whole map)
     // TODO normalize coordinate system:
-    sf::Vector2f leftTopPos = cartesianToIsometric({player.pos.x + 8, player.pos.y - 2}, playerTileAppearance);
+    sf::Vector2f leftTopPos = cartesianToIsometric({hero.getPos().x + 8, hero.getPos().y - 2}, playerTileAppearance);
 
     playerVertices.append(sf::Vertex(leftTopPos, playerSpriteInfo.texCoords.top_left));
     playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y), playerSpriteInfo.texCoords.top_right));

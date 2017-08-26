@@ -13,8 +13,18 @@ auto createCenteredWindow(int width, int height) {
     return window;
 }
 
+std::unique_ptr<sf::RenderWindow> window;
+
+void gameOver() {
+    window->setTitle("Game over!");
+}
+
+void levelFinished() {
+    window->setTitle("Level finished!");
+}
+
 int main() {
-    auto window = createCenteredWindow(860, 700);
+    /*auto */window = createCenteredWindow(860, 700);
     
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");
@@ -41,6 +51,9 @@ int main() {
         { Level::TileAppearance::FINISH_OVERLAY, Tileset::spaceCraft3_NE }
     });
 
+    level.setGameOverCallback(gameOver);
+    level.setLevelFinishedCallback(levelFinished);
+
     while (window->isOpen()) {
         sf::Event event;
         while (window->pollEvent(event)) {
@@ -65,6 +78,9 @@ int main() {
                 }
             }
         }
+
+        level.update();
+
         window->draw(background_sp);
         window->draw(level);
         window->display();

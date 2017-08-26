@@ -2,15 +2,20 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 #include <SFML/Graphics.hpp>
 
 #include "spriteinfo.hpp"
+#include "hero.hpp"
 
 const std::string LEVELS_DIR = "assets/levels/";
 
 
 class Level : public sf::Drawable, public sf::Transformable {
+
+    friend class Hero;
+
 public:
 
     enum TileAppearance {
@@ -42,6 +47,11 @@ public:
     struct Field {
         TileAppearance tileAppearance;
         FieldFunction fieldFunction = NORMAL;
+        size_t firstVertexIndex; // should be 4 of them
+
+        bool stepped = false;
+        bool active = true;
+        sf::Clock sinceStepped;
     };
 
     enum PlayerMove {
@@ -56,6 +66,9 @@ public:
 
     Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo);
     bool movePlayer(PlayerMove move);
+    void update();
+    void setGameOverCallback(std::function<void ()> callback);
+    void setLevelFinishedCallback(std::function<void ()> callback);
 
 private:
     void loadMapFromFile(std::string fileName);
@@ -64,21 +77,14 @@ private:
     void addNewField(int row, int column, Field field);
     Field& getField(int row, int column);
     void setFieldFunction(int row, int column, FieldFunction function);
-    void addFieldToVertexArray(Field field, sf::Vector2f pos);
+    void addFieldToVertexArray(Field &field, sf::Vector2f pos);
+    void modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex);
+
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:
 
-    struct Player {
-        sf::Vector2f pos;
-        enum Face {
-            TOP,
-            RIGHT,
-            BOTTOM,
-            LEFT,
-            COUNT // utility
-        } face = TOP;
-    } player;
+    Hero hero;
 
     enum Direction { // TODO duplicate with Player::Face?
         TOP = 1,
@@ -104,4 +110,6 @@ private:
     sf::Texture tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
     sf::VertexArray vertices;
+    std::function<void ()> gameOverCallback;
+    std::function<void ()> levelFinishedCallback;
 };
