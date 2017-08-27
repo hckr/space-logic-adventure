@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "utils.hpp"
+
 
 Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo)
     : tilesSpriteInfo(tilesSpriteInfo),
@@ -24,10 +26,6 @@ Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceTo
     for (auto &pair : map) {
         addFieldToVertexArray(pair.second, {pair.first.second, pair.first.first});
     }
-}
-
-int modulo(int x, int N) {
-    return (x % N + N) % N;
 }
 
 bool Level::movePlayer(PlayerMove move) {

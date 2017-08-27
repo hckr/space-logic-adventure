@@ -4,6 +4,7 @@
 
 #include "tileset.hpp"
 #include "level.hpp"
+#include "menuscreen.hpp"
 
 auto createCenteredWindow(int width, int height) {
     auto window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height), "Space Logic Adventure", sf::Style::Titlebar | sf::Style::Close);
@@ -23,6 +24,24 @@ void levelFinished() {
     window->setTitle("Level finished!");
 }
 
+Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
+    { Level::TileAppearance::FIELD_VERTICAL, Tileset::metalTileConnectStraight_NE },
+    { Level::TileAppearance::FIELD_VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
+    { Level::TileAppearance::FIELD_VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },
+    { Level::TileAppearance::FIELD_HORIZONTAL, Tileset::metalTileConnectStraight_NW },
+    { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_LEFT, Tileset::metalTileConnectEnd_NW },
+    { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_RIGHT, Tileset::metalTileConnectEnd_SW },
+    { Level::TileAppearance::FIELD_UP_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SE },
+    { Level::TileAppearance::FIELD_LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
+    { Level::TileAppearance::FIELD_DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
+    { Level::TileAppearance::FIELD_LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
+    { Level::TileAppearance::PLAYER_FACED_TOP, Tileset::astronaut_NE },
+    { Level::TileAppearance::PLAYER_FACED_BOTTOM, Tileset::astronaut_SW },
+    { Level::TileAppearance::PLAYER_FACED_LEFT, Tileset::astronaut_NW },
+    { Level::TileAppearance::PLAYER_FACED_RIGHT, Tileset::astronaut_SE },
+    { Level::TileAppearance::FINISH_OVERLAY, Tileset::spaceCraft3_NE }
+};
+
 int main() {
     /*auto */window = createCenteredWindow(860, 700);
     
@@ -33,26 +52,15 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
-    auto level = Level("2.txt", "assets/tileset.png", {
-        { Level::TileAppearance::FIELD_VERTICAL, Tileset::metalTileConnectStraight_NE },
-        { Level::TileAppearance::FIELD_VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
-        { Level::TileAppearance::FIELD_VERTICAL_OPENED_BOTTOM, Tileset::metalTileConnectEnd_NE },
-        { Level::TileAppearance::FIELD_HORIZONTAL, Tileset::metalTileConnectStraight_NW },
-        { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_LEFT, Tileset::metalTileConnectEnd_NW },
-        { Level::TileAppearance::FIELD_HORIZONTAL_OPENED_RIGHT, Tileset::metalTileConnectEnd_SW },
-        { Level::TileAppearance::FIELD_UP_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SE },
-        { Level::TileAppearance::FIELD_LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
-        { Level::TileAppearance::FIELD_DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
-        { Level::TileAppearance::FIELD_LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
-        { Level::TileAppearance::PLAYER_FACED_TOP, Tileset::astronaut_NE },
-        { Level::TileAppearance::PLAYER_FACED_BOTTOM, Tileset::astronaut_SW },
-        { Level::TileAppearance::PLAYER_FACED_LEFT, Tileset::astronaut_NW },
-        { Level::TileAppearance::PLAYER_FACED_RIGHT, Tileset::astronaut_SE },
-        { Level::TileAppearance::FINISH_OVERLAY, Tileset::spaceCraft3_NE }
-    });
+//    auto level = Level("2.txt", "assets/tileset.png", tilesSpriteInfo);
+//    level.setGameOverCallback(gameOver);
+//    level.setLevelFinishedCallback(levelFinished);
 
-    level.setGameOverCallback(gameOver);
-    level.setLevelFinishedCallback(levelFinished);
+    sf::Font font;
+    font.loadFromFile("assets/VT323-Regular.ttf");
+
+    MenuScreen menuScreen(font, background_sp);
+    Screen *currentScreen = (Screen*)&menuScreen;
 
     while (window->isOpen()) {
         sf::Event event;
@@ -61,28 +69,14 @@ int main() {
             case sf::Event::Closed:
                 window->close();
                 break;
-            case sf::Event::KeyPressed:
-                switch (event.key.code) {
-                case sf::Keyboard::Left:
-                    level.movePlayer(Level::ROTATE_COUNTERCLOCKWISE);
-                    break;
-                case sf::Keyboard::Right:
-                    level.movePlayer(Level::ROTATE_CLOCKWISE);
-                    break;
-                case sf::Keyboard::Up:
-                    level.movePlayer(Level::FRONT);
-                    break;
-                case sf::Keyboard::Down:
-                    level.movePlayer(Level::BACK);
-                    break;
-                }
+            default:
+                currentScreen->processEvent(event);
             }
         }
 
-        level.update();
+//        level.update();
 
-        window->draw(background_sp);
-        window->draw(level);
+        window->draw(*currentScreen);
         window->display();
     }
 
