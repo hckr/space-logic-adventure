@@ -39,6 +39,15 @@ public:
         FINISH_OVERLAY
     };
 
+    typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
+
+    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
+
+    virtual void processEvent(const sf::Event &event);
+    virtual void update();
+
+private:
+
     enum FieldFunction {
         NORMAL,
         START,
@@ -63,14 +72,17 @@ public:
     };
 
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
-    typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
+    enum GameState {
+        SHOWING_INFO,
+        COUNTING,
+        PLAYING,
+        WON,
+        LOST,
+        AFTER_WON,
+        AFTER_LOST
+    } gameState = SHOWING_INFO;
 
-    virtual void processEvent(const sf::Event &event);
-    virtual void update();
-
-private:
     bool movePlayer(PlayerMove move);
     void loadMapFromFile(std::string fileName);
     void closeMapBorders();
@@ -81,6 +93,7 @@ private:
     void addFieldToVertexArray(Field &field, sf::Vector2f pos);
     void modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex);
     void stepOnField(int row, int column);
+    void changeGameState(GameState newState);
 
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
@@ -108,7 +121,15 @@ private:
         { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
     };
 
-    bool started = false;
+    sf::Clock countingClock;
+    const float countingLength = 3.;
+
+    sf::Clock wonClock;
+    const float wonLength = 1.5;
+
+    sf::Clock lostClock;
+    const float lostLength = 1.5;
+
     LevelMap_t map;
     sf::Texture &tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;

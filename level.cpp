@@ -5,6 +5,7 @@
 #include <tuple>
 #include <cctype>
 #include <stdexcept>
+#include <cmath>
 
 #include <iostream>
 
@@ -32,7 +33,16 @@ Level::Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteI
 void Level::processEvent(const sf::Event &event) {
     switch (event.type) {
     case sf::Event::KeyPressed:
-        if (started) {
+        switch (gameState) {
+        case SHOWING_INFO:
+            switch (event.key.code) {
+            case sf::Keyboard::Return:
+            case sf::Keyboard::Space:
+                changeGameState(COUNTING);
+                break;
+            }
+            break;
+        case PLAYING:
             switch (event.key.code) {
             case sf::Keyboard::Left:
             case sf::Keyboard::A:
@@ -51,14 +61,7 @@ void Level::processEvent(const sf::Event &event) {
                 movePlayer(BACK);
                 break;
             }
-        } else {
-            switch (event.key.code) {
-            case sf::Keyboard::Return:
-            case sf::Keyboard::Space:
-                stepOnField(hero.getPos().y, hero.getPos().x);
-                started = true;
-                break;
-            }
+            break;
         }
         break;
     }
@@ -148,32 +151,65 @@ bool Level::movePlayer(PlayerMove move) {
 }
 
 void Level::update() {
-    if (!started) {
-        return;
-    }
+    if (gameState >= PLAYING) {
+        const float fieldLifeTimeSeconds = 0.5;
 
-    const float fieldLifeTimeSeconds = 0.5;
-
-    for (auto& [coords, field] : map) {
-        if (field.stepped && field.active) {
-            float seconds = field.sinceStepped.getElapsedTime().asSeconds();
-            if (seconds >= fieldLifeTimeSeconds) {
-                field.active = false;
-                seconds = fieldLifeTimeSeconds;
+        for (auto& [coords, field] : map) {
+            if (field.stepped && field.active) {
+                float seconds = field.sinceStepped.getElapsedTime().asSeconds();
+                if (seconds >= fieldLifeTimeSeconds) {
+                    field.active = false;
+                    seconds = fieldLifeTimeSeconds;
+                }
+                modifyFieldVertices(field, [&](auto& vertex) {
+                    vertex.color.a = int(255 * (1 - seconds / fieldLifeTimeSeconds));
+                });
             }
-            modifyFieldVertices(field, [&](auto& vertex) {
-                vertex.color.a = int(255 * (1 - seconds / fieldLifeTimeSeconds));
-            });
         }
     }
 
-    Field &currentField = getField(hero.getPos().y, hero.getPos().x);
+    switch (gameState) {
 
-    if (currentField.fieldFunction == FINISH) {
+    case COUNTING:
+        if (countingClock.getElapsedTime().asSeconds() >= countingLength) {
+            changeGameState(PLAYING);
+        }
+        break;
 
-    } else if (currentField.active == false) {
-        eventReceiver({ Event::GAME_OVER });
+    case PLAYING:
+    {
+        Field &currentField = getField(hero.getPos().y, hero.getPos().x);
+
+        if (currentField.fieldFunction == FINISH) {
+            changeGameState(WON);
+        } else if (currentField.active == false) {
+            changeGameState(LOST);
+        }
+        break;
     }
+
+    case WON:
+        if (wonClock.getElapsedTime().asSeconds() >= lostLength) {
+            changeGameState(AFTER_WON);
+        }
+        break;
+
+    case AFTER_WON:
+        eventReceiver({ Event::LEVEL_FINISHED });
+        break;
+
+    case LOST:
+        if (lostClock.getElapsedTime().asSeconds() >= lostLength) {
+            changeGameState(AFTER_LOST);
+        }
+        break;
+
+    case AFTER_LOST:
+        eventReceiver({ Event::GAME_OVER });
+        break;
+    }
+
+
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -421,9 +457,42 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
     target.draw(playerVertices, states);
 
-    if (!started) {
+    switch (gameState) {
+    case SHOWING_INFO:
         drawCenteredText(target, states, "LEVEL CODE: ASDF", 40, 1, 10);
         drawCenteredText(target, states, "PRESS ENTER/SPACEBAR TO START", 50, 1, target.getSize().y - 150);
         drawCenteredText(target, states, "Be careful, tiles are disappearing!", 40, 1, target.getSize().y - 100);
+        break;
+    case COUNTING:
+    {
+        int secondsLeft = std::ceil(countingLength - countingClock.getElapsedTime().asSeconds());
+        drawCenteredText(target, states, std::to_string(secondsLeft), 80, 3, target.getSize().y / 2 - 80);
+        break;
+    }
+    case WON:
+        drawCenteredText(target, states, "LEVEL FINISHED", 80, 3, target.getSize().y / 2 - 80);
+        break;
+    case LOST:
+        drawCenteredText(target, states, "YOU LOST", 80, 3, target.getSize().y / 2 - 80);
+        break;
+    }
+}
+
+void Level::changeGameState(GameState newState) {
+    gameState = newState;
+
+    switch (newState) {
+    case COUNTING:
+        countingClock.restart();
+        break;
+    case PLAYING:
+        stepOnField(hero.getPos().y, hero.getPos().x);
+        break;
+    case WON:
+        wonClock.restart();
+        break;
+    case LOST:
+        lostClock.restart();
+        break;
     }
 }
