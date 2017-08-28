@@ -12,8 +12,10 @@
 #include "utils.hpp"
 
 
-Level::Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor)
+Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string message, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor)
     : Screen(fillColor, outlineColor, font),
+      fieldLifetimeSeconds(fieldLifetimeSeconds),
+      message(message),
       tileset(tileset),
       tilesSpriteInfo(tilesSpriteInfo),
       hero(this),
@@ -152,17 +154,15 @@ bool Level::movePlayer(PlayerMove move) {
 
 void Level::update() {
     if (gameState >= PLAYING) {
-        const float fieldLifeTimeSeconds = 0.5;
-
         for (auto& [coords, field] : map) {
             if (field.stepped && field.active) {
                 float seconds = field.sinceStepped.getElapsedTime().asSeconds();
-                if (seconds >= fieldLifeTimeSeconds) {
+                if (seconds >= fieldLifetimeSeconds) {
                     field.active = false;
-                    seconds = fieldLifeTimeSeconds;
+                    seconds = fieldLifetimeSeconds;
                 }
                 modifyFieldVertices(field, [&](auto& vertex) {
-                    vertex.color.a = int(255 * (1 - seconds / fieldLifeTimeSeconds));
+                    vertex.color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
                 });
             }
         }
@@ -461,7 +461,7 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     case SHOWING_INFO:
         drawCenteredText(target, states, "LEVEL CODE: ASDF", 40, 1, 10);
         drawCenteredText(target, states, "PRESS ENTER/SPACEBAR TO START", 50, 1, target.getSize().y - 150);
-        drawCenteredText(target, states, "Be careful, tiles are disappearing!", 40, 1, target.getSize().y - 100);
+        drawCenteredText(target, states, message, 40, 1, target.getSize().y - 100);
         break;
     case COUNTING:
     {

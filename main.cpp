@@ -1,5 +1,7 @@
 #include <memory>
 #include <functional>
+#include <fstream>
+#include <sstream>
 
 #include <SFML/Graphics.hpp>
 
@@ -66,15 +68,46 @@ int main() {
     auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, lightBlue, white);
     currentScreen = menuScreen;
 
+    struct LevelData {
+        std::string fileName;
+        float fieldLifetime;
+        std::string code;
+        std::string message;
+    };
+
+    std::vector<LevelData> levelsData;
+    std::ifstream file("assets/levels/_list.txt");
+    std::string line;
+    std::getline(file, line);
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        LevelData data;
+        std::getline(ss, data.fileName, ';');
+        std::string fieldLifetimeStr;
+        std::getline(ss, fieldLifetimeStr, ';');
+        data.fieldLifetime = std::stof(fieldLifetimeStr);
+        std::getline(ss, data.code, ';');
+        std::getline(ss, data.message, ';');
+        levelsData.push_back(data);
+    }
+    size_t currentLevelIndex = 0;
+
     std::function<void(Event)> eventReceiver = [&](Event event) {
         switch (event.type) {
         case Event::MENU_START_NEW_GAME:
+            currentLevelIndex = -1;
+            // no break here
+        case Event::LEVEL_FINISHED:
         {
-            auto level = std::make_shared<Level>("1.txt", tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
-            level->setEventReceiver(eventReceiver);
-            currentScreen = level;
+            currentLevelIndex += 1;
+            if (currentLevelIndex < levelsData.size()) {
+                const LevelData &levelData = levelsData[currentLevelIndex];
+                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
+                levelScreen->setEventReceiver(eventReceiver);
+                currentScreen = levelScreen;
+            }
+            break;
         }
-        break;
         case Event::GAME_OVER:
             menu_background_tx.create(window->getSize().x, window->getSize().y);
             menu_background_tx.update(*window);
@@ -83,6 +116,7 @@ int main() {
             break;
         case Event::MENU_QUIT:
             window->close();
+            break;
         }
     };
 

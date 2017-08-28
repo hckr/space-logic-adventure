@@ -41,7 +41,7 @@ public:
 
     typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
+    Level(std::string fileName, float fieldLifetimeSeconds, std::string message, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
 
     virtual void processEvent(const sf::Event &event);
     virtual void update();
@@ -130,6 +130,8 @@ private:
     sf::Clock lostClock;
     const float lostLength = 1.5;
 
+    float fieldLifetimeSeconds;
+    std::string message;
     LevelMap_t map;
     sf::Texture &tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
