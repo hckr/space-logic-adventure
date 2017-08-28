@@ -11,9 +11,10 @@
 #include "utils.hpp"
 
 
-Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo)
+Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Sprite &background_sp)
     : tilesSpriteInfo(tilesSpriteInfo),
-      hero(this)
+      hero(this),
+      background_sp(background_sp)
 {
     tileset.loadFromFile(tilesetFilePath);
     tileset.setSmooth(true);
@@ -25,6 +26,27 @@ Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceTo
 
     for (auto &pair : map) {
         addFieldToVertexArray(pair.second, {pair.first.second, pair.first.first});
+    }
+}
+
+void Level::processEvent(const sf::Event &event) {
+    switch (event.type) {
+    case sf::Event::KeyPressed:
+        switch (event.key.code) {
+        case sf::Keyboard::Left:
+            movePlayer(ROTATE_COUNTERCLOCKWISE);
+            break;
+        case sf::Keyboard::Right:
+            movePlayer(ROTATE_CLOCKWISE);
+            break;
+        case sf::Keyboard::Up:
+            movePlayer(FRONT);
+            break;
+        case sf::Keyboard::Down:
+            movePlayer(BACK);
+            break;
+        }
+        break;
     }
 }
 
@@ -129,18 +151,10 @@ void Level::update() {
     Field &currentField = getField(hero.getPos().y, hero.getPos().x);
 
     if (currentField.fieldFunction == FINISH) {
-        levelFinishedCallback();
+
     } else if (currentField.active == false) {
-        gameOverCallback();
+        eventReceiver({ Event::GAME_OVER });
     }
-}
-
-void Level::setGameOverCallback(std::function<void ()> callback) {
-    gameOverCallback = callback;
-}
-
-void Level::setLevelFinishedCallback(std::function<void ()> callback) {
-    levelFinishedCallback = callback;
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -346,9 +360,9 @@ void Level::modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)>
 
 void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    states.transform *= getTransform();
     states.texture = &tileset;
 
+    target.draw(background_sp);
     target.draw(vertices, states);
 
     sf::VertexArray playerVertices;

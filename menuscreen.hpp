@@ -12,7 +12,7 @@ class MenuScreen : public Screen
 
     enum MenuOptionId {
         TRY_AGAIN,
-        NEW_GAME,
+        START_NEW_GAME,
         ENTER_LEVEL_CODE,
         CREDITS
     };
@@ -30,6 +30,7 @@ class MenuScreen : public Screen
 
 public:
     MenuScreen(sf::Font &font, sf::Sprite &background_sp);
+    void enableTryAgain();
     
     virtual void processEvent(const sf::Event &event);
 

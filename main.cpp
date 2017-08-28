@@ -1,10 +1,12 @@
 #include <memory>
+#include <functional>
 
 #include <SFML/Graphics.hpp>
 
 #include "tileset.hpp"
 #include "level.hpp"
 #include "menuscreen.hpp"
+
 
 auto createCenteredWindow(int width, int height) {
     auto window = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height), "Space Logic Adventure", sf::Style::Titlebar | sf::Style::Close);
@@ -15,14 +17,6 @@ auto createCenteredWindow(int width, int height) {
 }
 
 std::unique_ptr<sf::RenderWindow> window;
-
-void gameOver() {
-    window->setTitle("Game over!");
-}
-
-void levelFinished() {
-    window->setTitle("Level finished!");
-}
 
 Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
     { Level::TileAppearance::FIELD_VERTICAL, Tileset::metalTileConnectStraight_NE },
@@ -52,15 +46,29 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
-//    auto level = Level("2.txt", "assets/tileset.png", tilesSpriteInfo);
-//    level.setGameOverCallback(gameOver);
-//    level.setLevelFinishedCallback(levelFinished);
-
     sf::Font font;
     font.loadFromFile("assets/VT323-Regular.ttf");
 
-    MenuScreen menuScreen(font, background_sp);
-    Screen *currentScreen = (Screen*)&menuScreen;
+    std::shared_ptr<Screen> currentScreen;
+    auto menuScreen = std::make_shared<MenuScreen>(font, background_sp);
+    currentScreen = menuScreen;
+
+    std::function<void(Event)> eventReceiver = [&](Event event) {
+        switch (event.type) {
+        case Event::MENU_START_NEW_GAME:
+        {
+            auto level = std::make_shared<Level>("1.txt", "assets/tileset.png", tilesSpriteInfo, background_sp);
+            level->setEventReceiver(eventReceiver);
+            currentScreen = level;
+        }
+        break;
+        case Event::GAME_OVER:
+            menuScreen->enableTryAgain();
+            currentScreen = menuScreen;
+        }
+    };
+
+    menuScreen->setEventReceiver(eventReceiver);
 
     while (window->isOpen()) {
         sf::Event event;
@@ -74,7 +82,7 @@ int main() {
             }
         }
 
-//        level.update();
+        currentScreen->update();
 
         window->draw(*currentScreen);
         window->display();

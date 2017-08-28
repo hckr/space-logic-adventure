@@ -2,7 +2,7 @@
 
 #include "utils.hpp"
 
-#include <iostream>
+#include <algorithm>
 
 
 MenuScreen::MenuScreen(sf::Font &font, sf::Sprite &background_sp)
@@ -10,9 +10,19 @@ MenuScreen::MenuScreen(sf::Font &font, sf::Sprite &background_sp)
       background_sp(background_sp)
 {
     addMenuOption({ TRY_AGAIN, "try again", false }, false);
-    addMenuOption({ NEW_GAME, "start new game" }, true);
+    addMenuOption({ START_NEW_GAME, "start new game" }, true);
     addMenuOption({ ENTER_LEVEL_CODE, "enter level code" }, false);
     addMenuOption({ CREDITS, "credits" }, false);
+}
+
+void MenuScreen::enableTryAgain() {
+    auto tryAgain = std::find_if(std::begin(menuOptions), std::end(menuOptions), [](auto menuOption) {
+        return menuOption.id == TRY_AGAIN;
+    });
+    if (tryAgain != menuOptions.end()) {
+        tryAgain->active = true;
+        currentMenuOptionId = tryAgain - menuOptions.begin();
+    }
 }
 
 void MenuScreen::processEvent(const sf::Event &event) {
@@ -30,6 +40,13 @@ void MenuScreen::processEvent(const sf::Event &event) {
                 levelCodeInput.erase(levelCodeInput.end() - 1);
             }
             break;
+        case sf::Keyboard::Return:
+            switch (menuOptions[currentMenuOptionId].id) {
+            case START_NEW_GAME:
+            case TRY_AGAIN:
+                eventReceiver({Event::MENU_START_NEW_GAME});
+                break;
+            }
         }
         break;
     case sf::Event::TextEntered:

@@ -6,13 +6,14 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "screen.hpp"
 #include "spriteinfo.hpp"
 #include "hero.hpp"
 
 const std::string LEVELS_DIR = "assets/levels/";
 
 
-class Level : public sf::Drawable, public sf::Transformable {
+class Level : public Screen {
 
     friend class Hero;
 
@@ -64,13 +65,13 @@ public:
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
     typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo);
-    bool movePlayer(PlayerMove move);
-    void update();
-    void setGameOverCallback(std::function<void ()> callback);
-    void setLevelFinishedCallback(std::function<void ()> callback);
+    Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Sprite &background_sp);
+
+    virtual void processEvent(const sf::Event &event);
+    virtual void update();
 
 private:
+    bool movePlayer(PlayerMove move);
     void loadMapFromFile(std::string fileName);
     void closeMapBorders();
     void parseRow(int index, std::string row);
@@ -110,6 +111,5 @@ private:
     sf::Texture tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
     sf::VertexArray vertices;
-    std::function<void ()> gameOverCallback;
-    std::function<void ()> levelFinishedCallback;
+    sf::Sprite &background_sp;
 };
