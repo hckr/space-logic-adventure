@@ -14,6 +14,7 @@ MenuScreen::MenuScreen(sf::Font &font, sf::Sprite &background_sp, sf::Color colo
     addMenuOption({ START_NEW_GAME, "start new game" }, true);
     addMenuOption({ ENTER_LEVEL_CODE, "enter level code" }, false);
     addMenuOption({ CREDITS, "credits" }, false);
+    addMenuOption({ QUIT, "quit" }, false);
 }
 
 void MenuScreen::enableTryAgain() {
@@ -47,6 +48,8 @@ void MenuScreen::processEvent(const sf::Event &event) {
             case TRY_AGAIN:
                 eventReceiver({Event::MENU_START_NEW_GAME});
                 break;
+            case QUIT:
+                eventReceiver({Event::MENU_QUIT});
             }
         }
         break;

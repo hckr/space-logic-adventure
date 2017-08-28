@@ -15,7 +15,8 @@ class MenuScreen : public Screen
         TRY_AGAIN,
         START_NEW_GAME,
         ENTER_LEVEL_CODE,
-        CREDITS
+        CREDITS,
+        QUIT
     };
 
     struct MenuOption {

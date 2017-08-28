@@ -74,6 +74,9 @@ int main() {
             menu_background_tx.update(*window);
             menuScreen->enableTryAgain();
             currentScreen = menuScreen;
+            break;
+        case Event::MENU_QUIT:
+            window->close();
         }
     };
 
