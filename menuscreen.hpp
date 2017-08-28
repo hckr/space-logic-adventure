@@ -7,9 +7,7 @@
 
 class MenuScreen : public Screen
 {
-    sf::Font &font;
     sf::Sprite &background_sp;
-    sf::Color color;
 
     enum MenuOptionId {
         TRY_AGAIN,
@@ -31,7 +29,7 @@ class MenuScreen : public Screen
     std::string levelCodeInput;
 
 public:
-    MenuScreen(sf::Font &font, sf::Sprite &background_sp, sf::Color color);
+    MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
     void enableTryAgain();
     
     virtual void processEvent(const sf::Event &event);

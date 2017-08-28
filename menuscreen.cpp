@@ -5,10 +5,9 @@
 #include <algorithm>
 
 
-MenuScreen::MenuScreen(sf::Font &font, sf::Sprite &background_sp, sf::Color color)
-    : font(font),
-      background_sp(background_sp),
-      color(color)
+MenuScreen::MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor)
+    : Screen(fillColor, outlineColor, font),
+      background_sp(background_sp)
 {
     addMenuOption({ TRY_AGAIN, "try again", false }, false);
     addMenuOption({ START_NEW_GAME, "start new game" }, true);
@@ -43,6 +42,7 @@ void MenuScreen::processEvent(const sf::Event &event) {
             }
             break;
         case sf::Keyboard::Return:
+        case sf::Keyboard::Space:
             switch (menuOptions[currentMenuOptionId].id) {
             case START_NEW_GAME:
             case TRY_AGAIN:
@@ -94,19 +94,12 @@ void MenuScreen::drawMenuOption(const size_t &menuOptionId, sf::RenderTarget &ta
             text += ": " + levelCodeInput + "_";
         }
     }
-    sf::Text sfText(text, font, 50);
-    sfText.setColor(color);
-    sfText.setPosition(250 + offsetX, 250 + menuOptionId * 80);
-    target.draw(sfText, states);
+    drawText(target, states, text, 50, 2, 250 + offsetX, 250 + menuOptionId * 80);
 }
 
 void MenuScreen::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    sf::Text title("Space Logic Adventure", font, 75);
-    title.setColor(color);
-    title.setPosition(int((target.getSize().x - title.getGlobalBounds().width) / 2), 40);
-
     target.draw(background_sp, states);
-    target.draw(title, states);
+    drawCenteredText(target, states, "Space Logic Adventure", 75, 3, 40);
     for (size_t i = 0; i < menuOptions.size(); ++i) {
         drawMenuOption(i, target, states);
     }

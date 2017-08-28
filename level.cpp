@@ -11,11 +11,11 @@
 #include "utils.hpp"
 
 
-Level::Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Font &font, sf::Sprite &background_sp)
-    : tileset(tileset),
+Level::Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor)
+    : Screen(fillColor, outlineColor, font),
+      tileset(tileset),
       tilesSpriteInfo(tilesSpriteInfo),
       hero(this),
-      font(font),
       background_sp(background_sp)
 {
     vertices.setPrimitiveType(sf::Quads);
@@ -35,15 +35,19 @@ void Level::processEvent(const sf::Event &event) {
         if (started) {
             switch (event.key.code) {
             case sf::Keyboard::Left:
+            case sf::Keyboard::A:
                 movePlayer(ROTATE_COUNTERCLOCKWISE);
                 break;
             case sf::Keyboard::Right:
+            case sf::Keyboard::D:
                 movePlayer(ROTATE_CLOCKWISE);
                 break;
             case sf::Keyboard::Up:
+            case sf::Keyboard::W:
                 movePlayer(FRONT);
                 break;
             case sf::Keyboard::Down:
+            case sf::Keyboard::S:
                 movePlayer(BACK);
                 break;
             }
@@ -418,14 +422,8 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     target.draw(playerVertices, states);
 
     if (!started) {
-        sf::Text levelCode("LEVEL CODE: ASDF", font, 40);
-        levelCode.setPosition(int((target.getSize().x - levelCode.getGlobalBounds().width) / 2), 10);
-        target.draw(levelCode, states);
-        sf::Text toStart("PRESS ENTER/SPACEBAR TO START", font, 50);
-        toStart.setPosition(int((target.getSize().x - toStart.getGlobalBounds().width) / 2), target.getSize().y - 150);
-        target.draw(toStart, states);
-        sf::Text message("Be careful, tiles are disappearing!", font, 40);
-        message.setPosition(int((target.getSize().x - message.getGlobalBounds().width) / 2), target.getSize().y - 100);
-        target.draw(message, states);
+        drawCenteredText(target, states, "LEVEL CODE: ASDF", 40, 1, 10);
+        drawCenteredText(target, states, "PRESS ENTER/SPACEBAR TO START", 50, 1, target.getSize().y - 150);
+        drawCenteredText(target, states, "Be careful, tiles are disappearing!", 40, 1, target.getSize().y - 100);
     }
 }

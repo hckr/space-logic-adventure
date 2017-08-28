@@ -65,7 +65,7 @@ public:
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
     typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Font &font, sf::Sprite &background_sp);
+    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
 
     virtual void processEvent(const sf::Event &event);
     virtual void update();
@@ -113,6 +113,5 @@ private:
     sf::Texture &tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
     sf::VertexArray vertices;
-    sf::Font &font;
     sf::Sprite &background_sp;
 };

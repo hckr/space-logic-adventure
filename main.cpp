@@ -50,7 +50,7 @@ int main() {
     sf::Texture menu_background_tx(background_tx);
     sf::Sprite menu_background_sp(menu_background_tx);
     menu_background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
-    menu_background_sp.setColor(sf::Color(150, 150, 150));
+    menu_background_sp.setColor(sf::Color(200, 200, 200));
 
     sf::Texture tileset;
     tileset.loadFromFile("assets/tileset.png");
@@ -59,17 +59,18 @@ int main() {
     sf::Font font;
     font.loadFromFile("assets/VT323-Regular.ttf");
 
-    sf::Color menu_color(50, 200, 255);
+    sf::Color lightBlue(50, 200, 255);
+    sf::Color white(255, 255, 255);
 
     std::shared_ptr<Screen> currentScreen;
-    auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, menu_color);
+    auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, lightBlue, white);
     currentScreen = menuScreen;
 
     std::function<void(Event)> eventReceiver = [&](Event event) {
         switch (event.type) {
         case Event::MENU_START_NEW_GAME:
         {
-            auto level = std::make_shared<Level>("1.txt", tileset, tilesSpriteInfo, font, background_sp);
+            auto level = std::make_shared<Level>("1.txt", tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
             level->setEventReceiver(eventReceiver);
             currentScreen = level;
         }
