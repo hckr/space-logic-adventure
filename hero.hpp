@@ -7,7 +7,7 @@ class Level;
 
 class Hero {
     sf::Vector2i pos;
-    Level *level;
+    Level *level; // TODO probably won't be needed
 public:
     Hero(Level *parent);
     const sf::Vector2i& getPos() const;

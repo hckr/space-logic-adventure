@@ -38,6 +38,7 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
 
 int main() {
     /*auto */window = createCenteredWindow(860, 700);
+    window->setFramerateLimit(60);
     
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");
@@ -50,6 +51,10 @@ int main() {
     sf::Sprite menu_background_sp(menu_background_tx);
     menu_background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
     menu_background_sp.setColor(sf::Color(150, 150, 150));
+
+    sf::Texture tileset;
+    tileset.loadFromFile("assets/tileset.png");
+    tileset.setSmooth(true);
 
     sf::Font font;
     font.loadFromFile("assets/VT323-Regular.ttf");
@@ -64,7 +69,7 @@ int main() {
         switch (event.type) {
         case Event::MENU_START_NEW_GAME:
         {
-            auto level = std::make_shared<Level>("1.txt", "assets/tileset.png", tilesSpriteInfo, background_sp);
+            auto level = std::make_shared<Level>("1.txt", tileset, tilesSpriteInfo, font, background_sp);
             level->setEventReceiver(eventReceiver);
             currentScreen = level;
         }

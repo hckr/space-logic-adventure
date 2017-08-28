@@ -13,9 +13,4 @@ const sf::Vector2i& Hero::getPos() const {
 
 void Hero::setPos(sf::Vector2i newPos) {
     pos = newPos;
-    auto &field = level->getField(newPos.y, newPos.x);
-    if (!field.stepped) {
-        field.stepped = true;
-        field.sinceStepped.restart();
-    }
 }

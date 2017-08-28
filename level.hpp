@@ -65,7 +65,7 @@ public:
     typedef std::map<std::pair<int,int>, Field> LevelMap_t;
     typedef std::map<TileAppearance, SpriteInfo> TileAppearanceToSpriteInfoMap_t;
 
-    Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Sprite &background_sp);
+    Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Font &font, sf::Sprite &background_sp);
 
     virtual void processEvent(const sf::Event &event);
     virtual void update();
@@ -80,6 +80,7 @@ private:
     void setFieldFunction(int row, int column, FieldFunction function);
     void addFieldToVertexArray(Field &field, sf::Vector2f pos);
     void modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex);
+    void stepOnField(int row, int column);
 
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
@@ -107,9 +108,11 @@ private:
         { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
     };
 
+    bool started = false;
     LevelMap_t map;
-    sf::Texture tileset;
+    sf::Texture &tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
     sf::VertexArray vertices;
+    sf::Font &font;
     sf::Sprite &background_sp;
 };

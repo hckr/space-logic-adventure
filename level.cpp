@@ -11,40 +11,50 @@
 #include "utils.hpp"
 
 
-Level::Level(std::string fileName, std::string tilesetFilePath, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Sprite &background_sp)
-    : tilesSpriteInfo(tilesSpriteInfo),
+Level::Level(std::string fileName, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, sf::Font &font, sf::Sprite &background_sp)
+    : tileset(tileset),
+      tilesSpriteInfo(tilesSpriteInfo),
       hero(this),
+      font(font),
       background_sp(background_sp)
 {
-    tileset.loadFromFile(tilesetFilePath);
-    tileset.setSmooth(true);
-
     vertices.setPrimitiveType(sf::Quads);
 
     loadMapFromFile(fileName);
     closeMapBorders();
 
-    for (auto &pair : map) {
-        addFieldToVertexArray(pair.second, {pair.first.second, pair.first.first});
+    for (auto& [coords, field] : map) {
+        auto& [y, x] = coords;
+        addFieldToVertexArray(field , {x, y});
     }
 }
 
 void Level::processEvent(const sf::Event &event) {
     switch (event.type) {
     case sf::Event::KeyPressed:
-        switch (event.key.code) {
-        case sf::Keyboard::Left:
-            movePlayer(ROTATE_COUNTERCLOCKWISE);
-            break;
-        case sf::Keyboard::Right:
-            movePlayer(ROTATE_CLOCKWISE);
-            break;
-        case sf::Keyboard::Up:
-            movePlayer(FRONT);
-            break;
-        case sf::Keyboard::Down:
-            movePlayer(BACK);
-            break;
+        if (started) {
+            switch (event.key.code) {
+            case sf::Keyboard::Left:
+                movePlayer(ROTATE_COUNTERCLOCKWISE);
+                break;
+            case sf::Keyboard::Right:
+                movePlayer(ROTATE_CLOCKWISE);
+                break;
+            case sf::Keyboard::Up:
+                movePlayer(FRONT);
+                break;
+            case sf::Keyboard::Down:
+                movePlayer(BACK);
+                break;
+            }
+        } else {
+            switch (event.key.code) {
+            case sf::Keyboard::Return:
+            case sf::Keyboard::Space:
+                stepOnField(hero.getPos().y, hero.getPos().x);
+                started = true;
+                break;
+            }
         }
         break;
     }
@@ -129,11 +139,16 @@ bool Level::movePlayer(PlayerMove move) {
     }
 
     hero.setPos(newPos);
+    stepOnField(newPos.y, newPos.x);
     return true;
 }
 
 void Level::update() {
-    const float fieldLifeTimeSeconds = 1;
+    if (!started) {
+        return;
+    }
+
+    const float fieldLifeTimeSeconds = 0.5;
 
     for (auto& [coords, field] : map) {
         if (field.stepped && field.active) {
@@ -162,13 +177,10 @@ void Level::loadMapFromFile(std::string fileName) {
     for (auto [i, line] = std::make_tuple(0, std::string()); std::getline(file, line); ++i) {
         parseRow(i, line);
     }
-    for (auto &pair : map) {
-        std::cout << "(" << pair.first.first
-                  << "," << pair.first.second << ") – "
-                  << pair.second.tileAppearance << ", "
-                  << pair.second.fieldFunction << "\n";
-        if (pair.second.fieldFunction == START) {
-            hero.setPos(sf::Vector2i(pair.first.second, pair.first.first));
+    for (auto& [coords, field] : map) {
+        auto& [y, x] = coords;
+        if (field.fieldFunction == START) {
+            hero.setPos(sf::Vector2i(x, y));
         }
     }
 }
@@ -358,11 +370,19 @@ void Level::modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)>
     }
 }
 
+void Level::stepOnField(int row, int column) {
+    auto &field = getField(row, column);
+    if (!field.stepped) {
+        field.stepped = true;
+        field.sinceStepped.restart();
+    }
+}
+
 void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     states.texture = &tileset;
 
-    target.draw(background_sp);
+    target.draw(background_sp, states);
     target.draw(vertices, states);
 
     sf::VertexArray playerVertices;
@@ -396,4 +416,16 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_left));
 
     target.draw(playerVertices, states);
+
+    if (!started) {
+        sf::Text levelCode("LEVEL CODE: ASDF", font, 40);
+        levelCode.setPosition(int((target.getSize().x - levelCode.getGlobalBounds().width) / 2), 10);
+        target.draw(levelCode, states);
+        sf::Text toStart("PRESS ENTER/SPACEBAR TO START", font, 50);
+        toStart.setPosition(int((target.getSize().x - toStart.getGlobalBounds().width) / 2), target.getSize().y - 150);
+        target.draw(toStart, states);
+        sf::Text message("Be careful, tiles are disappearing!", font, 40);
+        message.setPosition(int((target.getSize().x - message.getGlobalBounds().width) / 2), target.getSize().y - 100);
+        target.draw(message, states);
+    }
 }
