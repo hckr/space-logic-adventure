@@ -46,11 +46,18 @@ int main() {
     sf::Sprite background_sp(background_tx);
     background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
 
+    sf::Texture menu_background_tx(background_tx);
+    sf::Sprite menu_background_sp(menu_background_tx);
+    menu_background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
+    menu_background_sp.setColor(sf::Color(150, 150, 150));
+
     sf::Font font;
     font.loadFromFile("assets/VT323-Regular.ttf");
 
+    sf::Color menu_color(50, 200, 255);
+
     std::shared_ptr<Screen> currentScreen;
-    auto menuScreen = std::make_shared<MenuScreen>(font, background_sp);
+    auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, menu_color);
     currentScreen = menuScreen;
 
     std::function<void(Event)> eventReceiver = [&](Event event) {
@@ -63,6 +70,8 @@ int main() {
         }
         break;
         case Event::GAME_OVER:
+            menu_background_tx.create(window->getSize().x, window->getSize().y);
+            menu_background_tx.update(*window);
             menuScreen->enableTryAgain();
             currentScreen = menuScreen;
         }
