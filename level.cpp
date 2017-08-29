@@ -6,6 +6,8 @@
 #include <cctype>
 #include <stdexcept>
 #include <cmath>
+#include <algorithm>
+#include <sstream>
 
 #include <iostream>
 
@@ -225,8 +227,6 @@ void Level::update() {
         break;
 
     }
-
-
 }
 
 void Level::loadMapFromFile(std::string fileName) {
@@ -238,6 +238,63 @@ void Level::loadMapFromFile(std::string fileName) {
         auto& [y, x] = coords;
         if (field.fieldFunction == START) {
             hero.setPos(sf::Vector2i(x, y));
+        }
+    }
+}
+
+enum FieldAttr {
+    TYPE,
+    FUNCTION
+};
+FieldAttr& operator++(FieldAttr& fieldAttr) {
+    return fieldAttr = static_cast<FieldAttr>(static_cast<int>(fieldAttr) + 1);
+}
+
+void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
+    row.erase(std::remove_if(row.begin(), row.end(), ::isspace), row.end());
+    std::istringstream rowStream(row);
+
+    int column = -1;
+
+    for (char tmp; rowStream.get(tmp); ) {
+        if (tmp != '[') {
+            std::cerr << "[ expected in row " << index + 1 << "! Terminating.\n";
+            std::exit(1);
+        }
+        std::string fieldInsides;
+        std::getline(rowStream, fieldInsides, ']');
+
+        column += 1;
+
+        Field field;
+
+        std::istringstream insidesStream(fieldInsides);
+        FieldAttr currentAttr = TYPE;
+        for (std::string str; std::getline(insidesStream, str, ';'); ++currentAttr) {
+            switch (currentAttr) {
+            case TYPE: {
+                if (str == "x") {
+                    continue;
+                }
+                auto it = symbolToTileAppearance.find(str);
+                if (it == symbolToTileAppearance.end()) {
+                    std::cerr << "Unknown field type: '" << str << "' in row " << index + 1 << "! Terminating.\n";
+                    std::exit(1);
+                }
+                field.tileAppearance = it->second;
+                break;
+            }
+            case FUNCTION: {
+                auto it = symbolToFieldFunction.find(str);
+                if (it == symbolToFieldFunction.end()) {
+                    std::cerr << "Unknown field function: '" << str << "' in row " << index + 1 << "! Terminating.\n";
+                    std::exit(1);
+                }
+                field.fieldFunction = it->second;
+                break;
+            }
+            }
+            addNewField(index, column, field);
         }
     }
 }
@@ -267,91 +324,6 @@ void Level::closeMapBorders() {
         default:
             break;
 
-        }
-    }
-}
-
-void unexpectedChar(size_t row, size_t column, unsigned char c) {
-    std::cerr << "Unexpected '" << c << "' at row " << row + 1 << ", column " << column + 1 << "! Terminating.\n";
-    std::exit(1);
-}
-
-void expectCharAtIndex(std::string &str, size_t row, size_t column, unsigned char c) {
-    if (!(column < str.size()) || str[column] != c) {
-        unexpectedChar(row, column, c);
-    }
-}
-
-void Level::parseRow(int index, std::string row) {
-    bool fieldStarted = false;
-    bool fieldAdded = false;
-    bool fieldFunctionSet = false;
-    int column = -1;
-    for (size_t i = 0; i < row.size(); ++i) {
-        unsigned char c = row[i];
-        if (std::isspace(c)) {
-            continue;
-        }
-        if (fieldStarted) {
-            if (!fieldAdded) {
-                switch (c) {
-                case '|':
-                    addNewField(index, column, {FIELD_VERTICAL});
-                    break;
-                case '-':
-                    addNewField(index, column, {FIELD_HORIZONTAL});
-                    break;
-                case '\\':
-                    i += 1;
-                    expectCharAtIndex(row, index, i, '_');
-                    addNewField(index, column, {FIELD_UP_RIGHT_TURN});
-                    break;
-                case '_':
-                    i += 1;
-                    expectCharAtIndex(row, index, i, '/');
-                    addNewField(index, column, {FIELD_LEFT_UP_TURN});
-                    break;
-                case '/':
-                    i += 1;
-                    expectCharAtIndex(row, index, i, '~');
-                    addNewField(index, column, {FIELD_DOWN_RIGHT_TURN});
-                    break;
-                case '~':
-                    i += 1;
-                    expectCharAtIndex(row, index, i, '\\');
-                    addNewField(index, column, {FIELD_LEFT_DOWN_TURN});
-                    break;
-                case 'x':
-                    // do nothing except incerement column number
-                    fieldAdded = true;
-                    fieldFunctionSet = true;
-                    break;
-                default:
-                    unexpectedChar(index, i, c);
-                }
-                fieldAdded = true;
-            } else {
-                if (c == ']') {
-                    fieldStarted = false;
-                } else if (!fieldFunctionSet && c == 's') {
-                    setFieldFunction(index, column, START);
-                    fieldFunctionSet = true;
-                } else if (!fieldFunctionSet && c == 'f') {
-                    setFieldFunction(index, column, FINISH);
-                    fieldFunctionSet = true;
-                } else {
-                    unexpectedChar(index, i, c);
-                }
-            }
-        } else {
-            if (c == '[') {
-                fieldStarted = true;
-                fieldAdded = false;
-                fieldFunctionSet = false;
-                column += 1;
-            } else {
-                unexpectedChar(index, i, c);
-            }
         }
     }
 }

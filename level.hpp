@@ -106,6 +106,20 @@ private:
         LEFT = 8
     };
 
+    const std::map<std::string, TileAppearance> symbolToTileAppearance {
+        { R"(|)" , FIELD_VERTICAL },
+        { R"(-)" , FIELD_HORIZONTAL },
+        { R"(\_)", FIELD_UP_RIGHT_TURN },
+        { R"(_/)", FIELD_LEFT_UP_TURN },
+        { R"(/~)", FIELD_DOWN_RIGHT_TURN },
+        { R"(~\)", FIELD_LEFT_DOWN_TURN }
+    };
+
+    const std::map<std::string, FieldFunction> symbolToFieldFunction {
+        { R"(s)" , START },
+        { R"(f)" , FINISH }
+    };
+
     const std::map<TileAppearance, int> fieldMovementInfo {
         { FIELD_VERTICAL,                Direction::TOP | Direction::BOTTOM },
         { FIELD_VERTICAL_OPENED_TOP,     Direction::TOP },

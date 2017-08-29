@@ -25,4 +25,4 @@ Empty space can be achieved with `[x]`.
 
 ## Special modifiers
 
-Vertical and horizontal tracks can be set to be a start or finish point (only one of each): `[|s]`, `[|f]`, `[-s]`, `[-f]`.
+Vertical and horizontal tracks can be set to be a start or finish point (only one of each): `[|;s]`, `[|;f]`, `[-;s]`, `[-;f]`.
