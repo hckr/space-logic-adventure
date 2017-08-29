@@ -43,6 +43,8 @@ void Level::processEvent(const sf::Event &event) {
             case sf::Keyboard::Space:
                 changeGameState(COUNTING);
                 break;
+            default:
+                break;
             }
             break;
         case PLAYING:
@@ -63,9 +65,15 @@ void Level::processEvent(const sf::Event &event) {
             case sf::Keyboard::S:
                 movePlayer(BACK);
                 break;
+            default:
+                break;
             }
             break;
+        default:
+            break;
         }
+        break;
+    default:
         break;
     }
 }
@@ -110,6 +118,8 @@ bool Level::movePlayer(PlayerMove move) {
             }
             newPos.x = hero.getPos().x - 1;
             break;
+        default:
+            break;
         }
         break;
     case BACK:
@@ -137,6 +147,8 @@ bool Level::movePlayer(PlayerMove move) {
                 return false;
             }
             newPos.x = hero.getPos().x + 1;
+            break;
+        default:
             break;
         }
         break;
@@ -170,6 +182,9 @@ void Level::update() {
     }
 
     switch (gameState) {
+
+    case SHOWING_INFO:
+        break;
 
     case COUNTING:
         if (countingClock.getElapsedTime().asSeconds() >= countingLength) {
@@ -208,6 +223,7 @@ void Level::update() {
     case AFTER_LOST:
         eventReceiver({ Event::GAME_OVER });
         break;
+
     }
 
 
@@ -229,14 +245,17 @@ void Level::loadMapFromFile(std::string fileName) {
 void Level::closeMapBorders() {
     for (auto& [coords, field] : map) {
         auto& [row, column] = coords;
+
         switch (field.tileAppearance) {
-        case FIELD_VERTICAL:
+
+            case FIELD_VERTICAL:
             if (map.count(std::make_pair(row - 1, column)) == 0) {
                 field.tileAppearance = FIELD_VERTICAL_OPENED_BOTTOM;
             } else if (map.count(std::make_pair(row + 1, column)) == 0) {
                 field.tileAppearance = FIELD_VERTICAL_OPENED_TOP;
             }
             break;
+
         case FIELD_HORIZONTAL:
             if (map.count(std::make_pair(row, column - 1)) == 0) {
                 field.tileAppearance = FIELD_HORIZONTAL_OPENED_RIGHT;
@@ -244,6 +263,10 @@ void Level::closeMapBorders() {
                 field.tileAppearance = FIELD_HORIZONTAL_OPENED_LEFT;
             }
             break;
+
+        default:
+            break;
+
         }
     }
 }
@@ -348,30 +371,41 @@ void Level::setFieldFunction(int row, int column, FieldFunction function) {
     }
 }
 
-sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::TileAppearance tileAppearance) {
+sf::Vector2f cartesianToIsometric(sf::Vector2i cartesian, Level::TileAppearance tileAppearance) {
     sf::Vector2f mod(0, 0);
+
     switch(tileAppearance) { // TODO this should probably be outside of the class
+
     case Level::FIELD_DOWN_RIGHT_TURN:
         mod = {0, 2};
         break;
+
     case Level::FIELD_UP_RIGHT_TURN:
         mod = {4, 0};
         break;
+
     case Level::FIELD_HORIZONTAL_OPENED_RIGHT:
         mod = {4, 2};
         break;
+
     case Level::FIELD_VERTICAL_OPENED_TOP:
         mod = {4, 0};
         break;
+
     case Level::FIELD_VERTICAL_OPENED_BOTTOM:
         mod = {0, 2};
         break;
+
     case Level::PLAYER_FACED_TOP:
     case Level::PLAYER_FACED_BOTTOM:
     case Level::PLAYER_FACED_LEFT:
     case Level::PLAYER_FACED_RIGHT:
         mod = {20, -8};
         break;
+
+    default:
+        break;
+
     }
 
     sf::Vector2f iso((cartesian.x - cartesian.y) * 38, (cartesian.x + cartesian.y) / 1.43f * 38);
@@ -379,7 +413,7 @@ sf::Vector2f cartesianToIsometric(sf::Vector2f cartesian, Level::TileAppearance 
     return iso + mod;
 }
 
-void Level::addFieldToVertexArray(Field &field, sf::Vector2f pos) {
+void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
     pos.x += 8; // TODO normalize coordinate system
     pos.y -= 2;
     auto leftTopPos = cartesianToIsometric(pos, field.tileAppearance);
@@ -429,20 +463,29 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     sf::VertexArray playerVertices;
     playerVertices.setPrimitiveType(sf::Quads);
 
-    TileAppearance playerTileAppearance;
+    TileAppearance playerTileAppearance = PLAYER_FACED_TOP;
+
     switch(hero.face) {
+
     case Hero::TOP:
         playerTileAppearance = PLAYER_FACED_TOP;
         break;
+
     case Hero::BOTTOM:
         playerTileAppearance = PLAYER_FACED_BOTTOM;
         break;
+
     case Hero::LEFT:
         playerTileAppearance = PLAYER_FACED_LEFT;
         break;
+
     case Hero::RIGHT:
         playerTileAppearance = PLAYER_FACED_RIGHT;
         break;
+
+    default:
+        break;
+
     }
 
     const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
@@ -459,22 +502,35 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     target.draw(playerVertices, states);
 
     switch (gameState) {
+
     case SHOWING_INFO:
         drawCenteredText(target, states, "LEVEL CODE: " + code, 40, 1, 10);
         drawCenteredText(target, states, "PRESS ENTER/SPACEBAR TO START", 50, 1, target.getSize().y - 150);
         drawCenteredText(target, states, message, 40, 1, target.getSize().y - 100);
         break;
+
     case COUNTING:
     {
         int secondsLeft = std::ceil(countingLength - countingClock.getElapsedTime().asSeconds());
         drawCenteredText(target, states, std::to_string(secondsLeft), 80, 3, target.getSize().y / 2 - 80);
         break;
     }
+
+    case PLAYING:
+        break;
+
     case WON:
         drawCenteredText(target, states, "LEVEL FINISHED", 80, 3, target.getSize().y / 2 - 80);
         break;
+
     case LOST:
         drawCenteredText(target, states, "YOU LOST", 80, 3, target.getSize().y / 2 - 80);
+        break;
+
+    case AFTER_WON:
+        break;
+
+    case AFTER_LOST:
         break;
     }
 }
@@ -483,17 +539,31 @@ void Level::changeGameState(GameState newState) {
     gameState = newState;
 
     switch (newState) {
+
+    case SHOWING_INFO:
+        break;
+
     case COUNTING:
         countingClock.restart();
         break;
+
     case PLAYING:
         stepOnField(hero.getPos().y, hero.getPos().x);
         break;
+
     case WON:
         wonClock.restart();
         break;
+
     case LOST:
         lostClock.restart();
         break;
+
+    case AFTER_WON:
+        break;
+
+    case AFTER_LOST:
+        break;
+
     }
 }

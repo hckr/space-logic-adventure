@@ -57,11 +57,11 @@ private:
     struct Field {
         TileAppearance tileAppearance;
         FieldFunction fieldFunction = NORMAL;
-        size_t firstVertexIndex; // should be 4 of them
+        size_t firstVertexIndex = 0; // should be 4 of them
 
         bool stepped = false;
         bool active = true;
-        sf::Clock sinceStepped;
+        sf::Clock sinceStepped = {};
     };
 
     enum PlayerMove {
@@ -90,7 +90,7 @@ private:
     void addNewField(int row, int column, Field field);
     Field& getField(int row, int column);
     void setFieldFunction(int row, int column, FieldFunction function);
-    void addFieldToVertexArray(Field &field, sf::Vector2f pos);
+    void addFieldToVertexArray(Field &field, sf::Vector2i pos);
     void modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex);
     void stepOnField(int row, int column);
     void changeGameState(GameState newState);
@@ -98,8 +98,6 @@ private:
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:
-
-    Hero hero;
 
     enum Direction { // TODO duplicate with Player::Face?
         TOP = 1,
@@ -133,9 +131,10 @@ private:
     float fieldLifetimeSeconds;
     std::string code;
     std::string message;
-    LevelMap_t map;
     sf::Texture &tileset;
     TileAppearanceToSpriteInfoMap_t tilesSpriteInfo;
+    Hero hero;
     sf::VertexArray vertices;
     sf::Sprite &background_sp;
+    LevelMap_t map;
 };

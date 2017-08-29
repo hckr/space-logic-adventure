@@ -100,10 +100,10 @@ int main() {
         switch (event.type) {
         case Event::MENU_START_NEW_GAME:
             currentLevelIndex = -1;
-            // no break here
+            // fallthrough
         case Event::LEVEL_FINISHED:
             currentLevelIndex += 1;
-            // no break here
+            // fallthrough
         case Event::MENU_TRY_AGAIN:
             if (currentLevelIndex < levelsData.size()) {
                 const LevelData &levelData = levelsData[currentLevelIndex];

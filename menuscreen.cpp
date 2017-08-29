@@ -71,6 +71,8 @@ void MenuScreen::processEvent(const sf::Event &event) {
                 eventReceiver({Event::MENU_QUIT});
                 break;
             }
+        default:
+            break;
         }
         break;
     case sf::Event::TextEntered:
@@ -80,6 +82,8 @@ void MenuScreen::processEvent(const sf::Event &event) {
         } else if (event.text.unicode >= 'a' && event.text.unicode <= 'z') {
             levelCodeInput += static_cast<char>(event.text.unicode - ('a' - 'A'));
         }
+        break;
+    default:
         break;
     }
 }

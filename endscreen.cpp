@@ -14,7 +14,11 @@ void EndScreen::processEvent(const sf::Event &event) {
         case sf::Keyboard::Space:
             eventReceiver({Event::SHOW_CLEAN_MENU});
             break;
+        default:
+            break;
         }
+        break;
+    default:
         break;
     }
 }

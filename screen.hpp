@@ -24,10 +24,10 @@ protected:
 
 public:
     Screen(const sf::Color &fillColor, const sf::Color &outlineColor, const sf::Font &font)
-        : fillColor(fillColor),
+        : eventReceiver([](Event){}),
+          fillColor(fillColor),
           outlineColor(outlineColor),
-          font(font),
-          eventReceiver([](Event){})
+          font(font)
     { }
 
     void setEventReceiver(std::function<void (Event)> receiver) {
