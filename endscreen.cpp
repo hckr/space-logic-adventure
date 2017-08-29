@@ -12,7 +12,7 @@ void EndScreen::processEvent(const sf::Event &event) {
         switch (event.key.code) {
         case sf::Keyboard::Return:
         case sf::Keyboard::Space:
-            eventReceiver({Event::SHOW_MENU});
+            eventReceiver({Event::SHOW_CLEAN_MENU});
             break;
         }
         break;

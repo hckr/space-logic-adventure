@@ -2,6 +2,7 @@
 #include <functional>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include <SFML/Graphics.hpp>
 
@@ -105,11 +106,10 @@ int main() {
         case Event::MENU_TRY_AGAIN:
             if (currentLevelIndex < levelsData.size()) {
                 const LevelData &levelData = levelsData[currentLevelIndex];
-                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
+                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
                 levelScreen->setEventReceiver(eventReceiver);
                 currentScreen = levelScreen;
             } else {
-                menu_background_tx = background_tx;
                 currentScreen = endScreen;
             }
             break;
@@ -120,11 +120,28 @@ int main() {
             menuScreen->setActiveOption(MenuScreen::TRY_AGAIN);
             currentScreen = menuScreen;
             break;
-        case Event::SHOW_MENU:
+        case Event::SHOW_CLEAN_MENU:
+            menu_background_tx = background_tx;
             menuScreen->enableTryAgain(false);
             menuScreen->setActiveOption(MenuScreen::START_NEW_GAME);
             currentScreen = menuScreen;
             break;
+        case Event::MENU_LEVEL_CODE:
+        {
+            auto levelDataIt = std::find_if(std::begin(levelsData), std::end(levelsData), [&](auto levelData) {
+                return levelData.code == reinterpret_cast<char *>(event.data);
+            });
+            if (levelDataIt != levelsData.end()) {
+                currentLevelIndex = levelDataIt - levelsData.begin();
+                auto levelData = *levelDataIt;
+                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
+                levelScreen->setEventReceiver(eventReceiver);
+                currentScreen = levelScreen;
+            } else {
+                menuScreen->clearLevelCode();
+            }
+            break;
+        }
         case Event::MENU_QUIT:
             window->close();
             break;

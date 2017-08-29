@@ -34,6 +34,7 @@ public:
     MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
     void enableTryAgain(bool enable);
     void setActiveOption(MenuOptionId menuOptionId);
+    void clearLevelCode();
     
     virtual void processEvent(const sf::Event &event);
 

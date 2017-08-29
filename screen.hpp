@@ -10,10 +10,12 @@ struct Event {
         MENU_START_NEW_GAME,
         MENU_TRY_AGAIN,
         MENU_QUIT,
+        MENU_LEVEL_CODE,
         LEVEL_FINISHED,
         GAME_OVER,
-        SHOW_MENU
+        SHOW_CLEAN_MENU
     } type;
+    void *data = 0;
 };
 
 class Screen : public sf::Drawable {

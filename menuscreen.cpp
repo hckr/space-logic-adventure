@@ -35,6 +35,11 @@ void MenuScreen::setActiveOption(MenuScreen::MenuOptionId menuOptionId)
     }
 }
 
+void MenuScreen::clearLevelCode()
+{
+    levelCodeInput.clear();
+}
+
 void MenuScreen::processEvent(const sf::Event &event) {
     switch (event.type) {
     case sf::Event::KeyPressed:
@@ -53,11 +58,14 @@ void MenuScreen::processEvent(const sf::Event &event) {
         case sf::Keyboard::Return:
         case sf::Keyboard::Space:
             switch (menuOptions[currentMenuOptionId].id) {
+            case TRY_AGAIN:
+                eventReceiver({Event::MENU_TRY_AGAIN});
+                break;
             case START_NEW_GAME:
                 eventReceiver({Event::MENU_START_NEW_GAME});
                 break;
-            case TRY_AGAIN:
-                eventReceiver({Event::MENU_TRY_AGAIN});
+            case ENTER_LEVEL_CODE:
+                eventReceiver({Event::MENU_LEVEL_CODE, reinterpret_cast<void *>(const_cast<char *>(levelCodeInput.c_str()))});
                 break;
             case QUIT:
                 eventReceiver({Event::MENU_QUIT});
