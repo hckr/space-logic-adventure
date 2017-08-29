@@ -43,6 +43,7 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
 int main() {
     /*auto */window = createCenteredWindow(860, 700);
     window->setFramerateLimit(60);
+    window->setKeyRepeatEnabled(false);
     
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");
