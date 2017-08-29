@@ -7,8 +7,7 @@
 
 class MenuScreen : public Screen
 {
-    sf::Sprite &background_sp;
-
+public:
     enum MenuOptionId {
         TRY_AGAIN,
         START_NEW_GAME,
@@ -16,6 +15,9 @@ class MenuScreen : public Screen
         CREDITS,
         QUIT
     };
+
+private:
+    sf::Sprite &background_sp;
 
     struct MenuOption {
         MenuOptionId id;
@@ -30,7 +32,8 @@ class MenuScreen : public Screen
 
 public:
     MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor);
-    void enableTryAgain();
+    void enableTryAgain(bool enable);
+    void setActiveOption(MenuOptionId menuOptionId);
     
     virtual void processEvent(const sf::Event &event);
 

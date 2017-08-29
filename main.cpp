@@ -8,6 +8,7 @@
 #include "tileset.hpp"
 #include "level.hpp"
 #include "menuscreen.hpp"
+#include "endscreen.hpp"
 
 
 auto createCenteredWindow(int width, int height) {
@@ -66,6 +67,7 @@ int main() {
 
     std::shared_ptr<Screen> currentScreen;
     auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, lightBlue, white);
+    auto endScreen = std::make_shared<EndScreen>(font, background_sp, white, lightBlue);
     currentScreen = menuScreen;
 
     struct LevelData {
@@ -98,20 +100,29 @@ int main() {
             currentLevelIndex = -1;
             // no break here
         case Event::LEVEL_FINISHED:
-        {
             currentLevelIndex += 1;
+            // no break here
+        case Event::MENU_TRY_AGAIN:
             if (currentLevelIndex < levelsData.size()) {
                 const LevelData &levelData = levelsData[currentLevelIndex];
                 auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
                 levelScreen->setEventReceiver(eventReceiver);
                 currentScreen = levelScreen;
+            } else {
+                menu_background_tx = background_tx;
+                currentScreen = endScreen;
             }
             break;
-        }
         case Event::GAME_OVER:
             menu_background_tx.create(window->getSize().x, window->getSize().y);
             menu_background_tx.update(*window);
-            menuScreen->enableTryAgain();
+            menuScreen->enableTryAgain(true);
+            menuScreen->setActiveOption(MenuScreen::TRY_AGAIN);
+            currentScreen = menuScreen;
+            break;
+        case Event::SHOW_MENU:
+            menuScreen->enableTryAgain(false);
+            menuScreen->setActiveOption(MenuScreen::START_NEW_GAME);
             currentScreen = menuScreen;
             break;
         case Event::MENU_QUIT:
@@ -121,6 +132,7 @@ int main() {
     };
 
     menuScreen->setEventReceiver(eventReceiver);
+    endScreen->setEventReceiver(eventReceiver);
 
     while (window->isOpen()) {
         sf::Event event;

@@ -16,13 +16,22 @@ MenuScreen::MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf
     addMenuOption({ QUIT, "quit" }, false);
 }
 
-void MenuScreen::enableTryAgain() {
+void MenuScreen::enableTryAgain(bool enable) {
     auto tryAgain = std::find_if(std::begin(menuOptions), std::end(menuOptions), [](auto menuOption) {
         return menuOption.id == TRY_AGAIN;
     });
     if (tryAgain != menuOptions.end()) {
-        tryAgain->active = true;
-        currentMenuOptionId = tryAgain - menuOptions.begin();
+        tryAgain->active = enable;
+    }
+}
+
+void MenuScreen::setActiveOption(MenuScreen::MenuOptionId menuOptionId)
+{
+    auto option = std::find_if(std::begin(menuOptions), std::end(menuOptions), [&](auto menuOption) {
+        return menuOption.id == menuOptionId;
+    });
+    if (option != menuOptions.end()) {
+        currentMenuOptionId = option - menuOptions.begin();
     }
 }
 
@@ -45,11 +54,14 @@ void MenuScreen::processEvent(const sf::Event &event) {
         case sf::Keyboard::Space:
             switch (menuOptions[currentMenuOptionId].id) {
             case START_NEW_GAME:
-            case TRY_AGAIN:
                 eventReceiver({Event::MENU_START_NEW_GAME});
+                break;
+            case TRY_AGAIN:
+                eventReceiver({Event::MENU_TRY_AGAIN});
                 break;
             case QUIT:
                 eventReceiver({Event::MENU_QUIT});
+                break;
             }
         }
         break;

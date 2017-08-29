@@ -8,9 +8,11 @@
 struct Event {
     enum Type {
         MENU_START_NEW_GAME,
+        MENU_TRY_AGAIN,
         MENU_QUIT,
         LEVEL_FINISHED,
-        GAME_OVER
+        GAME_OVER,
+        SHOW_MENU
     } type;
 };
 
