@@ -368,6 +368,18 @@ sf::Vector2f cartesianToIsometric(sf::Vector2i cartesian, Level::TileAppearance 
         mod = {0, 2};
         break;
 
+    case Level::FIELD_CLOSED_RIGHT:
+        mod = {0, 2};
+        break;
+
+    case Level::FIELD_CLOSED_BOTTOM:
+        mod = {0, 2};
+        break;
+
+    case Level::FIELD_OPENED_ALL_SIDES:
+        mod = {1, 1};
+        break;
+
     case Level::PLAYER_FACED_TOP:
     case Level::PLAYER_FACED_BOTTOM:
     case Level::PLAYER_FACED_LEFT:

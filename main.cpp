@@ -33,10 +33,17 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
     { Level::TileAppearance::FIELD_LEFT_UP_TURN, Tileset::metalTileConnectCornerInner_NW },
     { Level::TileAppearance::FIELD_DOWN_RIGHT_TURN, Tileset::metalTileConnectCornerInner_SW },
     { Level::TileAppearance::FIELD_LEFT_DOWN_TURN, Tileset::metalTileConnectCornerInner_NE },
+    { Level::TileAppearance::FIELD_CLOSED_TOP, Tileset::metalTileConnectSide_SW },
+    { Level::TileAppearance::FIELD_CLOSED_RIGHT, Tileset::metalTileConnectSide_NE },
+    { Level::TileAppearance::FIELD_CLOSED_BOTTOM, Tileset::metalTileConnectSide_NW },
+    { Level::TileAppearance::FIELD_CLOSED_LEFT, Tileset::metalTileConnectSide_SE },
+    { Level::TileAppearance::FIELD_OPENED_ALL_SIDES, Tileset::metalTileConnectCenter_NE },
+
     { Level::TileAppearance::PLAYER_FACED_TOP, Tileset::astronaut_NE },
     { Level::TileAppearance::PLAYER_FACED_BOTTOM, Tileset::astronaut_SW },
     { Level::TileAppearance::PLAYER_FACED_LEFT, Tileset::astronaut_NW },
     { Level::TileAppearance::PLAYER_FACED_RIGHT, Tileset::astronaut_SE },
+
     { Level::TileAppearance::FINISH_OVERLAY, Tileset::spaceCraft3_NE }
 };
 

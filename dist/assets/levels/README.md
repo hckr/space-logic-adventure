@@ -14,6 +14,16 @@ Each field on map is represented by `[...]`, where `...` are one of the below. R
 
 ![]( ../../../gfx/metalTileConnectCornerInner_NE.png) – "left-down turn" – `[~\]`
 
+![]( ../../../gfx/metalTileConnectSide_SW.png) – "closed from top" – `[-v-]`
+
+![]( ../../../gfx/metalTileConnectSide_NE.png) – "closed from right" – `[-|]`
+
+![]( ../../../gfx/metalTileConnectSide_NW.png) – "closed from bottom" – `[-^-]`
+
+![]( ../../../gfx/metalTileConnectSide_SE.png) – "closed from left" – `[|-]`
+
+![]( ../../../gfx/metalTileConnectCenter_NE.png) – "opened from all sides" – `[+]`
+
 Vertical and horizontal fields which aren't connected from one side will be replaced with one of the following:
 
 ![]( ../../../gfx/metalTileConnectEnd_SE.png)

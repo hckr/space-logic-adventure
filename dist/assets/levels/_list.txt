@@ -1,3 +1,4 @@
 level_file;field_lifetime;level_code;message
 1.txt;1;EASY;Be careful, tiles are disappearing!
 2.txt;1;TURNS;Let's practice turns!
+4.txt;1;ENABLING;You must enable it first!

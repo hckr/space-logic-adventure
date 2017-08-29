@@ -22,14 +22,15 @@ const SpriteInfo metalTileConnectCornerInner_SW = { 76, 54, { sf::Vector2f(400, 
 const SpriteInfo metalTileConnectCornerInner_NW = { 76, 54, { sf::Vector2f(476, 0), sf::Vector2f(552, 0), sf::Vector2f(552, 54), sf::Vector2f(476, 54) } };
 const SpriteInfo metalTileConnectSide_SW = { 76, 54, { sf::Vector2f(552, 0), sf::Vector2f(628, 0), sf::Vector2f(628, 54), sf::Vector2f(552, 54) } };
 const SpriteInfo metalTileConnectStraight_NW = { 76, 56, { sf::Vector2f(628, 0), sf::Vector2f(704, 0), sf::Vector2f(704, 56), sf::Vector2f(628, 56) } };
-const SpriteInfo metalTileConnectEnd_SW = { 72, 54, { sf::Vector2f(704, 0), sf::Vector2f(776, 0), sf::Vector2f(776, 54), sf::Vector2f(704, 54) } };
-const SpriteInfo metalTileConnectEnd_NW = { 72, 54, { sf::Vector2f(776, 0), sf::Vector2f(848, 0), sf::Vector2f(848, 54), sf::Vector2f(776, 54) } };
-const SpriteInfo metalTileConnectCornerInner_NE = { 72, 56, { sf::Vector2f(848, 0), sf::Vector2f(920, 0), sf::Vector2f(920, 56), sf::Vector2f(848, 56) } };
-const SpriteInfo metalTileConnectCornerInner_SE = { 72, 56, { sf::Vector2f(920, 0), sf::Vector2f(992, 0), sf::Vector2f(992, 56), sf::Vector2f(920, 56) } };
-const SpriteInfo metalTileConnectEnd_NE = { 72, 54, { sf::Vector2f(992, 0), sf::Vector2f(1064, 0), sf::Vector2f(1064, 54), sf::Vector2f(992, 54) } };
-const SpriteInfo metalTileConnectSide_NE = { 76, 55, { sf::Vector2f(1064, 0), sf::Vector2f(1140, 0), sf::Vector2f(1140, 55), sf::Vector2f(1064, 55) } };
-const SpriteInfo metalTileConnectEnd_SE = { 72, 54, { sf::Vector2f(1140, 0), sf::Vector2f(1212, 0), sf::Vector2f(1212, 54), sf::Vector2f(1140, 54) } };
-const SpriteInfo metalTileConnectSide_SE = { 76, 55, { sf::Vector2f(1212, 0), sf::Vector2f(1288, 0), sf::Vector2f(1288, 55), sf::Vector2f(1212, 55) } };
-const SpriteInfo spaceCraft3_NE = { 78, 58, { sf::Vector2f(1288, 0), sf::Vector2f(1366, 0), sf::Vector2f(1366, 58), sf::Vector2f(1288, 58) } };
+const SpriteInfo metalTileConnectCenter_NE = { 75, 54, { sf::Vector2f(704, 0), sf::Vector2f(779, 0), sf::Vector2f(779, 54), sf::Vector2f(704, 54) } };
+const SpriteInfo metalTileConnectEnd_SW = { 72, 54, { sf::Vector2f(779, 0), sf::Vector2f(851, 0), sf::Vector2f(851, 54), sf::Vector2f(779, 54) } };
+const SpriteInfo metalTileConnectEnd_NW = { 72, 54, { sf::Vector2f(851, 0), sf::Vector2f(923, 0), sf::Vector2f(923, 54), sf::Vector2f(851, 54) } };
+const SpriteInfo metalTileConnectCornerInner_NE = { 72, 56, { sf::Vector2f(923, 0), sf::Vector2f(995, 0), sf::Vector2f(995, 56), sf::Vector2f(923, 56) } };
+const SpriteInfo metalTileConnectCornerInner_SE = { 72, 56, { sf::Vector2f(995, 0), sf::Vector2f(1067, 0), sf::Vector2f(1067, 56), sf::Vector2f(995, 56) } };
+const SpriteInfo metalTileConnectEnd_NE = { 72, 54, { sf::Vector2f(1067, 0), sf::Vector2f(1139, 0), sf::Vector2f(1139, 54), sf::Vector2f(1067, 54) } };
+const SpriteInfo metalTileConnectSide_NE = { 76, 55, { sf::Vector2f(1139, 0), sf::Vector2f(1215, 0), sf::Vector2f(1215, 55), sf::Vector2f(1139, 55) } };
+const SpriteInfo metalTileConnectEnd_SE = { 72, 54, { sf::Vector2f(1215, 0), sf::Vector2f(1287, 0), sf::Vector2f(1287, 54), sf::Vector2f(1215, 54) } };
+const SpriteInfo metalTileConnectSide_SE = { 76, 55, { sf::Vector2f(1287, 0), sf::Vector2f(1363, 0), sf::Vector2f(1363, 55), sf::Vector2f(1287, 55) } };
+const SpriteInfo spaceCraft3_NE = { 78, 58, { sf::Vector2f(1363, 0), sf::Vector2f(1441, 0), sf::Vector2f(1441, 58), sf::Vector2f(1363, 58) } };
 
 }

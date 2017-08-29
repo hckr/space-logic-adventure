@@ -30,6 +30,11 @@ public:
         FIELD_LEFT_UP_TURN,
         FIELD_DOWN_RIGHT_TURN,
         FIELD_LEFT_DOWN_TURN,
+        FIELD_CLOSED_TOP,
+        FIELD_CLOSED_RIGHT,
+        FIELD_CLOSED_BOTTOM,
+        FIELD_CLOSED_LEFT,
+        FIELD_OPENED_ALL_SIDES,
 
         PLAYER_FACED_TOP,
         PLAYER_FACED_BOTTOM,
@@ -107,12 +112,17 @@ private:
     };
 
     const std::map<std::string, TileAppearance> symbolToTileAppearance {
-        { R"(|)" , FIELD_VERTICAL },
-        { R"(-)" , FIELD_HORIZONTAL },
-        { R"(\_)", FIELD_UP_RIGHT_TURN },
-        { R"(_/)", FIELD_LEFT_UP_TURN },
-        { R"(/~)", FIELD_DOWN_RIGHT_TURN },
-        { R"(~\)", FIELD_LEFT_DOWN_TURN }
+        { R"(|)"  , FIELD_VERTICAL },
+        { R"(-)"  , FIELD_HORIZONTAL },
+        { R"(\_)" , FIELD_UP_RIGHT_TURN },
+        { R"(_/)" , FIELD_LEFT_UP_TURN },
+        { R"(/~)" , FIELD_DOWN_RIGHT_TURN },
+        { R"(~\)" , FIELD_LEFT_DOWN_TURN },
+        { R"(-v-)", FIELD_CLOSED_TOP },
+        { R"(-|)" , FIELD_CLOSED_RIGHT },
+        { R"(-^-)", FIELD_CLOSED_BOTTOM },
+        { R"(|-)" , FIELD_CLOSED_LEFT },
+        { R"(+)"  , FIELD_OPENED_ALL_SIDES }
     };
 
     const std::map<std::string, FieldFunction> symbolToFieldFunction {
@@ -130,7 +140,12 @@ private:
         { FIELD_UP_RIGHT_TURN,           Direction::TOP | Direction::RIGHT },
         { FIELD_LEFT_UP_TURN,            Direction::TOP | Direction::LEFT },
         { FIELD_DOWN_RIGHT_TURN,         Direction::BOTTOM | Direction::RIGHT },
-        { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT }
+        { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT },
+        { FIELD_CLOSED_TOP,              Direction::RIGHT | Direction::BOTTOM | Direction::LEFT },
+        { FIELD_CLOSED_RIGHT,            Direction::TOP | Direction::BOTTOM | Direction::LEFT },
+        { FIELD_CLOSED_BOTTOM,           Direction::TOP | Direction::RIGHT | Direction::LEFT },
+        { FIELD_CLOSED_LEFT,             Direction::TOP | Direction::RIGHT | Direction::BOTTOM },
+        { FIELD_OPENED_ALL_SIDES,        Direction::TOP | Direction::RIGHT | Direction::BOTTOM | Direction::LEFT }
     };
 
     sf::Clock countingClock;
