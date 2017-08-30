@@ -1,6 +1,9 @@
 # Level file format
 
-Each field on map is represented by `[...]`, where `...` are one of the below. Rows are y-axis, columns – x-axis. Whitespace characters are ignored (inside and outside of brackets).
+Each field on map is represented by `[type;function;durability]`.
+`type` is mandatory, every other attribute is optional and can be omited (then semicolons aren't needed). Rows are y-axis, columns – x-axis. Whitespace characters are ignored (inside and outside of brackets).
+
+## `type`
 
 ![]( ../../../gfx/metalTileConnectStraight_NE.png) – "vertical track" – `[|]`
 
@@ -33,6 +36,11 @@ Vertical and horizontal fields which aren't connected from one side will be repl
 
 Empty space can be achieved with `[x]`.
 
-## Special modifiers
+## `function`
 
-Vertical and horizontal tracks can be set to be a start or finish point (only one of each): `[|;s]`, `[|;f]`, `[-;s]`, `[-;f]`.
+- `s` – start, e.g. `[|;s]`
+- `f` – finish, e.g. `[-;f]`
+
+## `durability`
+
+Is an integer which means how many times tile can be stepped before being destroyed, defaults to `1`.

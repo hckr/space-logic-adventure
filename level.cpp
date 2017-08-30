@@ -170,7 +170,7 @@ bool Level::movePlayer(PlayerMove move) {
 void Level::update() {
     if (gameState >= PLAYING) {
         for (auto& [coords, field] : map) {
-            if (field.stepped && field.active) {
+            if (field.durability <= 0 && field.active) {
                 float seconds = field.sinceStepped.getElapsedTime().asSeconds();
                 if (seconds >= fieldLifetimeSeconds) {
                     field.active = false;
@@ -178,6 +178,10 @@ void Level::update() {
                 }
                 modifyFieldVertices(field, [&](auto& vertex) {
                     vertex.color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
+                });
+            } else if (field.durability == 1) {
+                modifyFieldVertices(field, [&](auto& vertex) {
+                    vertex.color = {255, 255, 255};
                 });
             }
         }
@@ -244,7 +248,8 @@ void Level::loadMapFromFile(std::string fileName) {
 
 enum FieldAttr {
     TYPE,
-    FUNCTION
+    FUNCTION,
+    DURABILITY
 };
 FieldAttr& operator++(FieldAttr& fieldAttr) {
     return fieldAttr = static_cast<FieldAttr>(static_cast<int>(fieldAttr) + 1);
@@ -291,6 +296,12 @@ void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
                     std::exit(1);
                 }
                 field.fieldFunction = it->second;
+                break;
+            }
+            case DURABILITY: {
+                if (!str.empty()) {
+                    field.durability = std::stoi(str);
+                }
                 break;
             }
             }
@@ -403,9 +414,10 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
     auto leftTopPos = cartesianToIsometric(pos, field.tileAppearance);
 
     sf::Color color(255, 255, 255);
-//    switch (field.???) {
-//        // TODO not activated in black?
-//    }
+
+    if (field.durability > 1) {
+        color = {255, 255, 150};
+    }
 
     const SpriteInfo &fieldSpriteInfo = tilesSpriteInfo[field.tileAppearance];
     vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
@@ -431,8 +443,8 @@ void Level::modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)>
 
 void Level::stepOnField(int row, int column) {
     auto &field = getField(row, column);
-    if (!field.stepped) {
-        field.stepped = true;
+    field.durability -= 1;
+    if (field.durability == 0) {
         field.sinceStepped.restart();
     }
 }

@@ -64,7 +64,7 @@ private:
         FieldFunction fieldFunction = NORMAL;
         size_t firstVertexIndex = 0; // should be 4 of them
 
-        bool stepped = false;
+        int durability = 1;
         bool active = true;
         sf::Clock sinceStepped = {};
     };
@@ -127,7 +127,8 @@ private:
 
     const std::map<std::string, FieldFunction> symbolToFieldFunction {
         { R"(s)" , START },
-        { R"(f)" , FINISH }
+        { R"(f)" , FINISH },
+        { ""     , NORMAL }
     };
 
     const std::map<TileAppearance, int> fieldMovementInfo {
