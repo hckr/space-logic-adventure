@@ -162,6 +162,10 @@ bool Level::movePlayer(PlayerMove move) {
         return true;
     }
 
+    if (getField(newPos.y, newPos.x).dangerous) {
+        return false;
+    }
+
     hero.setPos(newPos);
     stepOnField(newPos.y, newPos.x);
     return true;
@@ -179,7 +183,7 @@ void Level::update() {
                 modifyFieldVertices(field, [&](auto& vertex) {
                     vertex.color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
                 });
-            } else if (field.durability == 1) {
+            } else if (field.dangerous == false && field.durability == 1) {
                 modifyFieldVertices(field, [&](auto& vertex) {
                     vertex.color = {255, 255, 255};
                 });
@@ -249,7 +253,8 @@ void Level::loadMapFromFile(std::string fileName) {
 enum FieldAttr {
     TYPE,
     FUNCTION,
-    DURABILITY
+    DURABILITY,
+    DANGEROUS
 };
 FieldAttr& operator++(FieldAttr& fieldAttr) {
     return fieldAttr = static_cast<FieldAttr>(static_cast<int>(fieldAttr) + 1);
@@ -298,12 +303,17 @@ void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
                 field.fieldFunction = it->second;
                 break;
             }
-            case DURABILITY: {
+            case DURABILITY:
                 if (!str.empty()) {
                     field.durability = std::stoi(str);
                 }
                 break;
-            }
+
+            case DANGEROUS:
+                if (str == "d") {
+                    field.dangerous = true;
+                }
+                break;
             }
             addNewField(index, column, field);
         }
@@ -391,6 +401,14 @@ sf::Vector2f cartesianToIsometric(sf::Vector2i cartesian, Level::TileAppearance 
         mod = {1, 1};
         break;
 
+    case Level::FENCE_TOP_RIGHT:
+        mod = { 38, -8 };
+        break;
+
+    case Level::FENCE_BOTTOM_LEFT:
+        mod = { 2, -7 };
+        break;
+
     case Level::PLAYER_FACED_TOP:
     case Level::PLAYER_FACED_BOTTOM:
     case Level::PLAYER_FACED_LEFT:
@@ -415,7 +433,9 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
 
     sf::Color color(255, 255, 255);
 
-    if (field.durability > 1) {
+    if (field.dangerous == true) {
+        color = {255, 150, 150};
+    } else if (field.durability > 1) {
         color = {255, 255, 150};
     }
 
@@ -432,6 +452,17 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y), color, finishSpriteInfo.texCoords.top_right));
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_right));
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_left));
+    } else if (field.dangerous == true) {
+        field.firstFenceVertexIndex = vertices.getVertexCount() - 1;
+        for (auto fenceTileAppearance : { FENCE_TOP_RIGHT, FENCE_BOTTOM_LEFT }) {
+            auto leftTopPos = cartesianToIsometric(pos, fenceTileAppearance);
+            const SpriteInfo &fenceSpriteInfo = tilesSpriteInfo[fenceTileAppearance];
+            vertices.append(sf::Vertex(leftTopPos, fenceSpriteInfo.texCoords.top_left));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fenceSpriteInfo.width, leftTopPos.y), fenceSpriteInfo.texCoords.top_right));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fenceSpriteInfo.width, leftTopPos.y + fenceSpriteInfo.height), fenceSpriteInfo.texCoords.bottom_right));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fenceSpriteInfo.height), fenceSpriteInfo.texCoords.bottom_left));
+            field.fenceVerticesCount += 4;
+        }
     }
 }
 

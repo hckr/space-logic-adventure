@@ -12,6 +12,7 @@ images += [ { 'scale_factor': 0.7, 'file_name': f } for f in glob('../gfx/*alien
 images += [ { 'scale_factor': 0.7, 'file_name': f } for f in glob('../gfx/*astronaut*') ]
 images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*Tile*') ]
 images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*spaceCraft3*') ]
+images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*Fence*') ]
 
 tilemap_temp = Image.new('RGBA', (5000, 100), (255, 0, 0, 0))
 

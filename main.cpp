@@ -39,6 +39,9 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
     { Level::TileAppearance::FIELD_CLOSED_LEFT, Tileset::metalTileConnectSide_SE },
     { Level::TileAppearance::FIELD_OPENED_ALL_SIDES, Tileset::metalTileConnectCenter_NE },
 
+    { Level::TileAppearance::FENCE_TOP_RIGHT, Tileset::metalFenceCorner_SW },
+    { Level::TileAppearance::FENCE_BOTTOM_LEFT, Tileset::metalFenceCorner_NW },
+
     { Level::TileAppearance::PLAYER_FACED_TOP, Tileset::astronaut_NE },
     { Level::TileAppearance::PLAYER_FACED_BOTTOM, Tileset::astronaut_SW },
     { Level::TileAppearance::PLAYER_FACED_LEFT, Tileset::astronaut_NW },

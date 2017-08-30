@@ -36,6 +36,9 @@ public:
         FIELD_CLOSED_LEFT,
         FIELD_OPENED_ALL_SIDES,
 
+        FENCE_TOP_RIGHT,
+        FENCE_BOTTOM_LEFT,
+
         PLAYER_FACED_TOP,
         PLAYER_FACED_BOTTOM,
         PLAYER_FACED_LEFT,
@@ -66,6 +69,9 @@ private:
 
         int durability = 1;
         bool active = true;
+        bool dangerous = false;
+        size_t fenceVerticesCount = 0; // if dangerous == true
+        size_t firstFenceVertexIndex = 0;
         sf::Clock sinceStepped = {};
     };
 
