@@ -91,7 +91,8 @@ private:
         WON,
         LOST,
         AFTER_WON,
-        AFTER_LOST
+        WANTS_TO_EXIT,
+        EXITING
     } gameState = SHOWING_INFO;
 
     bool movePlayer(PlayerMove move);

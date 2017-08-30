@@ -38,6 +38,14 @@ Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code,
 void Level::processEvent(const sf::Event &event) {
     switch (event.type) {
     case sf::Event::KeyPressed:
+        switch (event.key.code) {
+        case sf::Keyboard::Escape:
+            changeGameState(WANTS_TO_EXIT);
+            break;
+        default:
+            break;
+        }
+
         switch (gameState) {
         case SHOWING_INFO:
             switch (event.key.code) {
@@ -226,12 +234,16 @@ void Level::update() {
 
     case LOST:
         if (lostClock.getElapsedTime().asSeconds() >= lostLength) {
-            changeGameState(AFTER_LOST);
+            changeGameState(EXITING);
         }
         break;
 
-    case AFTER_LOST:
-        eventReceiver({ Event::GAME_OVER });
+    case WANTS_TO_EXIT:
+        changeGameState(EXITING);
+        break;
+
+    case EXITING:
+        eventReceiver({ Event::SHOW_MENU_WITH_TRY_AGAIN });
         break;
 
     }
@@ -557,7 +569,10 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     case AFTER_WON:
         break;
 
-    case AFTER_LOST:
+    case WANTS_TO_EXIT:
+        break;
+
+    case EXITING:
         break;
     }
 }
@@ -589,7 +604,10 @@ void Level::changeGameState(GameState newState) {
     case AFTER_WON:
         break;
 
-    case AFTER_LOST:
+    case WANTS_TO_EXIT:
+        break;
+
+    case EXITING:
         break;
 
     }

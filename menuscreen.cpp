@@ -71,6 +71,13 @@ void MenuScreen::processEvent(const sf::Event &event) {
                 eventReceiver({Event::MENU_QUIT});
                 break;
             }
+        case sf::Keyboard::Escape: {
+            if (menuOptions[currentMenuOptionId].id == QUIT) {
+                eventReceiver({Event::MENU_QUIT});
+            } else {
+                setActiveOption(QUIT);
+            }
+        }
         default:
             break;
         }

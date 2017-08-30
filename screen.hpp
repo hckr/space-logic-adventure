@@ -12,7 +12,7 @@ struct Event {
         MENU_QUIT,
         MENU_LEVEL_CODE,
         LEVEL_FINISHED,
-        GAME_OVER,
+        SHOW_MENU_WITH_TRY_AGAIN,
         SHOW_CLEAN_MENU
     } type;
     void *data = 0;

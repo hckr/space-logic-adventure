@@ -124,7 +124,7 @@ int main() {
                 currentScreen = endScreen;
             }
             break;
-        case Event::GAME_OVER:
+        case Event::SHOW_MENU_WITH_TRY_AGAIN:
             menu_background_tx.create(window->getSize().x, window->getSize().y);
             menu_background_tx.update(*window);
             menuScreen->enableTryAgain(true);
