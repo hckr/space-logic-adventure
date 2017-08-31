@@ -191,10 +191,17 @@ void Level::update() {
                 modifyFieldVertices(field, [&](auto& vertex) {
                     vertex.color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
                 });
-            } else if (field.dangerous == false && field.durability == 1) {
+            } else if (field.durability == 1 && field.dangerous == false && field.fieldFunction == NORMAL) {
                 modifyFieldVertices(field, [&](auto& vertex) {
-                    vertex.color = {255, 255, 255};
+                    vertex.color = {255, 255, 255}; // TODO add animation?
                 });
+            }
+            if (field.dangerous == false && field.fenceVerticesCount > 0) {
+                // TODO add animation?
+                for (size_t i = 0; i < field.fenceVerticesCount; ++i) {
+                    vertices[field.firstFenceVertexIndex + i].position = {0, 0};
+                }
+                field.fenceVerticesCount = 0;
             }
         }
     }
@@ -214,10 +221,23 @@ void Level::update() {
     {
         Field &currentField = getField(hero.getPos().y, hero.getPos().x);
 
-        if (currentField.fieldFunction == FINISH) {
-            changeGameState(WON);
-        } else if (currentField.active == false) {
+        if (currentField.active == false) {
             changeGameState(LOST);
+        } else {
+            switch (currentField.fieldFunction) {
+            case FINISH:
+                changeGameState(WON);
+                break;
+            case DEACTIVATOR: {
+                auto fieldIt = std::find_if(map.begin(), map.end(), [&](auto pair) {
+                    return pair.second.id == currentField.functionData;
+                });
+                fieldIt->second.dangerous = false;
+                break;
+            }
+            default:
+                break;
+            }
         }
         break;
     }
@@ -265,6 +285,7 @@ void Level::loadMapFromFile(std::string fileName) {
 enum FieldAttr {
     TYPE,
     FUNCTION,
+    ID,
     DURABILITY,
     DANGEROUS
 };
@@ -307,14 +328,22 @@ void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
                 break;
             }
             case FUNCTION: {
-                auto it = symbolToFieldFunction.find(str);
+                std::istringstream strStream(str);
+                std::string substr;
+                std::getline(strStream, substr, '|');
+                auto it = symbolToFieldFunction.find(substr);
                 if (it == symbolToFieldFunction.end()) {
                     std::cerr << "Unknown field function: '" << str << "' in row " << index + 1 << "! Terminating.\n";
                     std::exit(1);
                 }
                 field.fieldFunction = it->second;
+                std::getline(strStream, substr, '|');
+                field.functionData = substr;
                 break;
             }
+            case ID:
+                field.id = str;
+                break;
             case DURABILITY:
                 if (!str.empty()) {
                     field.durability = std::stoi(str);
@@ -449,11 +478,13 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
         color = {255, 150, 150};
     } else if (field.durability > 1) {
         color = {255, 255, 150};
+    } else if (field.fieldFunction == DEACTIVATOR) {
+        color = {150, 255, 255};
     }
 
     const SpriteInfo &fieldSpriteInfo = tilesSpriteInfo[field.tileAppearance];
+    field.firstVertexIndex = vertices.getVertexCount();
     vertices.append(sf::Vertex(leftTopPos, color, fieldSpriteInfo.texCoords.top_left));
-    field.firstVertexIndex = vertices.getVertexCount() - 1;
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y), color, fieldSpriteInfo.texCoords.top_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fieldSpriteInfo.width, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_right));
     vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fieldSpriteInfo.height), color, fieldSpriteInfo.texCoords.bottom_left));
@@ -465,7 +496,7 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + finishSpriteInfo.width, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_right));
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_left));
     } else if (field.dangerous == true) {
-        field.firstFenceVertexIndex = vertices.getVertexCount() - 1;
+        field.firstFenceVertexIndex = vertices.getVertexCount();
         for (auto fenceTileAppearance : { FENCE_TOP_RIGHT, FENCE_BOTTOM_LEFT }) {
             auto leftTopPos = cartesianToIsometric(pos, fenceTileAppearance);
             const SpriteInfo &fenceSpriteInfo = tilesSpriteInfo[fenceTileAppearance];

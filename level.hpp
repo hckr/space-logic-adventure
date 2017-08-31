@@ -59,7 +59,8 @@ private:
     enum FieldFunction {
         NORMAL,
         START,
-        FINISH
+        FINISH,
+        DEACTIVATOR
     };
 
     struct Field {
@@ -70,6 +71,8 @@ private:
         int durability = 1;
         bool active = true;
         bool dangerous = false;
+        std::string id = ""; // TODO draw it on field?
+        std::string functionData = "";
         size_t fenceVerticesCount = 0; // if dangerous == true
         size_t firstFenceVertexIndex = 0;
         sf::Clock sinceStepped = {};
@@ -133,9 +136,10 @@ private:
     };
 
     const std::map<std::string, FieldFunction> symbolToFieldFunction {
-        { R"(s)" , START },
-        { R"(f)" , FINISH },
-        { ""     , NORMAL }
+        { ""  , NORMAL },
+        { "s" , START },
+        { "f" , FINISH },
+        { "d" , DEACTIVATOR }
     };
 
     const std::map<TileAppearance, int> fieldMovementInfo {
