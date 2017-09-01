@@ -10,6 +10,7 @@
 #include "level.hpp"
 #include "menuscreen.hpp"
 #include "endscreen.hpp"
+#include "soundmanager.hpp"
 
 
 auto createCenteredWindow(int width, int height) {
@@ -54,7 +55,9 @@ int main() {
     /*auto */window = createCenteredWindow(860, 700);
     window->setFramerateLimit(60);
     window->setKeyRepeatEnabled(false);
-    
+
+    SoundManager& soundManager = SoundManager::getInstance();
+
     sf::Texture background_tx;
     background_tx.loadFromFile("assets/background.png");
     background_tx.setRepeated(true);
@@ -80,7 +83,17 @@ int main() {
     std::shared_ptr<Screen> currentScreen;
     auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, lightBlue, white);
     auto endScreen = std::make_shared<EndScreen>(font, background_sp, white, lightBlue);
-    currentScreen = menuScreen;
+
+    auto setCurrentScreen = [&](std::shared_ptr<Screen> newScreen) {
+        currentScreen = newScreen;
+        if (newScreen == menuScreen) {
+            soundManager.changeMusic(SoundManager::MENU);
+        } else {
+            soundManager.changeMusic(SoundManager::LEVEL);
+        }
+    };
+
+    setCurrentScreen(menuScreen);
 
     struct LevelData {
         std::string fileName;
@@ -119,9 +132,9 @@ int main() {
                 const LevelData &levelData = levelsData[currentLevelIndex];
                 auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
                 levelScreen->setEventReceiver(eventReceiver);
-                currentScreen = levelScreen;
+                setCurrentScreen(levelScreen);
             } else {
-                currentScreen = endScreen;
+                setCurrentScreen(endScreen);
             }
             break;
         case Event::SHOW_MENU_WITH_TRY_AGAIN:
@@ -129,13 +142,13 @@ int main() {
             menu_background_tx.update(*window);
             menuScreen->enableTryAgain(true);
             menuScreen->setActiveOption(MenuScreen::TRY_AGAIN);
-            currentScreen = menuScreen;
+            setCurrentScreen(menuScreen);
             break;
         case Event::SHOW_CLEAN_MENU:
             menu_background_tx = background_tx;
             menuScreen->enableTryAgain(false);
             menuScreen->setActiveOption(MenuScreen::START_NEW_GAME);
-            currentScreen = menuScreen;
+            setCurrentScreen(menuScreen);
             break;
         case Event::MENU_LEVEL_CODE:
         {
@@ -147,13 +160,14 @@ int main() {
                 auto levelData = *levelDataIt;
                 auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
                 levelScreen->setEventReceiver(eventReceiver);
-                currentScreen = levelScreen;
+                setCurrentScreen(levelScreen);
             } else {
                 menuScreen->clearLevelCode();
             }
             break;
         }
         case Event::MENU_QUIT:
+            SoundManager::destroyInstance();
             window->close();
             break;
         }
@@ -163,10 +177,14 @@ int main() {
     endScreen->setEventReceiver(eventReceiver);
 
     while (window->isOpen()) {
+
+        soundManager.update();
+
         sf::Event event;
         while (window->pollEvent(event)) {
             switch (event.type) {
             case sf::Event::Closed:
+                SoundManager::destroyInstance();
                 window->close();
                 break;
             default:

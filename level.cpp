@@ -22,7 +22,8 @@ Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code,
       tileset(tileset),
       tilesSpriteInfo(tilesSpriteInfo),
       hero(this),
-      background_sp(background_sp)
+      background_sp(background_sp),
+      soundManager(SoundManager::getInstance())
 {
     vertices.setPrimitiveType(sf::Quads);
 
@@ -625,10 +626,12 @@ void Level::changeGameState(GameState newState) {
         break;
 
     case WON:
+        soundManager.playEffect(SoundManager::LEVEL_COMPLETED);
         wonClock.restart();
         break;
 
     case LOST:
+        soundManager.playEffect(SoundManager::GAME_OVER);
         lostClock.restart();
         break;
 

@@ -9,6 +9,7 @@
 #include "screen.hpp"
 #include "spriteinfo.hpp"
 #include "hero.hpp"
+#include "soundmanager.hpp"
 
 const std::string LEVELS_DIR = "assets/levels/";
 
@@ -178,4 +179,5 @@ private:
     sf::VertexArray vertices;
     sf::Sprite &background_sp;
     LevelMap_t map;
+    SoundManager& soundManager;
 };
