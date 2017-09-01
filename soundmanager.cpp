@@ -2,8 +2,8 @@
 
 void SoundManager::lowerMusicVolume(bool lower) {
     if (lower) {
-        sounds.at(MENU).setVolume(0);
-        sounds.at(LEVEL).setVolume(0);
+        sounds.at(MENU).setVolume(50);
+        sounds.at(LEVEL).setVolume(50);
     } else {
         sounds.at(MENU).setVolume(100);
         sounds.at(LEVEL).setVolume(100);
@@ -44,13 +44,13 @@ void SoundManager::changeMusic(Sound music) {
 
     switch (music) {
     case NONE:
-        sounds.at(musicPlaying).pause();
+        sounds.at(musicPlaying).stop();
         break;
 
     case MENU:
     case LEVEL:
         if (musicPlaying != NONE) {
-            sounds.at(musicPlaying).pause();
+            sounds.at(musicPlaying).stop();
         }
         sounds.at(music).play();
         musicPlaying = music;
