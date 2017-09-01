@@ -11,9 +11,11 @@ struct Event {
         MENU_TRY_AGAIN,
         MENU_QUIT,
         MENU_LEVEL_CODE,
+        MENU_CREDITS,
         LEVEL_FINISHED,
         SHOW_MENU_WITH_TRY_AGAIN,
-        SHOW_CLEAN_MENU
+        SHOW_CLEAN_MENU,
+        SHOW_MENU
     } type;
     void *data = 0;
 };
@@ -53,6 +55,8 @@ public:
     }
 
     virtual void update() { }
+
+    virtual void onActivated() { }
 
     virtual void processEvent(const sf::Event &event) = 0;
 

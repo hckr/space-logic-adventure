@@ -11,6 +11,7 @@
 #include "menuscreen.hpp"
 #include "endscreen.hpp"
 #include "soundmanager.hpp"
+#include "creditsscreen.hpp"
 
 
 auto createCenteredWindow(int width, int height) {
@@ -83,10 +84,12 @@ int main() {
     std::shared_ptr<Screen> currentScreen;
     auto menuScreen = std::make_shared<MenuScreen>(font, menu_background_sp, lightBlue, white);
     auto endScreen = std::make_shared<EndScreen>(font, background_sp, white, lightBlue);
+    auto creditsScreen = std::make_shared<CreditsScreen>(font, background_sp, lightBlue, white);
 
     auto setCurrentScreen = [&](std::shared_ptr<Screen> newScreen) {
         currentScreen = newScreen;
-        if (newScreen == menuScreen) {
+        currentScreen->onActivated();
+        if (newScreen == menuScreen || newScreen == creditsScreen) {
             soundManager.changeMusic(SoundManager::MENU);
         } else {
             soundManager.changeMusic(SoundManager::LEVEL);
@@ -150,6 +153,9 @@ int main() {
             menuScreen->setActiveOption(MenuScreen::START_NEW_GAME);
             setCurrentScreen(menuScreen);
             break;
+        case Event::SHOW_MENU:
+            setCurrentScreen(menuScreen);
+            break;
         case Event::MENU_LEVEL_CODE:
         {
             auto levelDataIt = std::find_if(std::begin(levelsData), std::end(levelsData), [&](auto levelData) {
@@ -166,6 +172,9 @@ int main() {
             }
             break;
         }
+        case Event::MENU_CREDITS:
+            setCurrentScreen(creditsScreen);
+            break;
         case Event::MENU_QUIT:
             SoundManager::destroyInstance();
             window->close();
@@ -175,6 +184,7 @@ int main() {
 
     menuScreen->setEventReceiver(eventReceiver);
     endScreen->setEventReceiver(eventReceiver);
+    creditsScreen->setEventReceiver(eventReceiver);
 
     while (window->isOpen()) {
 

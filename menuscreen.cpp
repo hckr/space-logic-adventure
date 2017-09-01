@@ -67,6 +67,9 @@ void MenuScreen::processEvent(const sf::Event &event) {
             case ENTER_LEVEL_CODE:
                 eventReceiver({Event::MENU_LEVEL_CODE, reinterpret_cast<void *>(const_cast<char *>(levelCodeInput.c_str()))});
                 break;
+            case CREDITS:
+                eventReceiver({Event::MENU_CREDITS});
+                break;
             case QUIT:
                 eventReceiver({Event::MENU_QUIT});
                 break;
