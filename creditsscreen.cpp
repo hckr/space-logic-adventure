@@ -53,7 +53,7 @@ void CreditsScreen::draw(sf::RenderTarget &target, sf::RenderStates states) cons
     posY += 50;
     drawCenteredText(target, states, "VT323 by Peter Hull and Jacques Le Bailly", 40, 2, posY);
     posY += 100;
-    drawCenteredText(target, states, "music / sound effects", 45, 2, posY);
+    drawCenteredText(target, states, "music, sound effects", 45, 2, posY);
     posY += 50;
     drawCenteredText(target, states, "freesound.org/people/LittleRobotSoundFactory/", 40, 2, posY);
     posY += 45;
