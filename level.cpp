@@ -469,8 +469,6 @@ sf::Vector2f cartesianToIsometric(sf::Vector2i cartesian, Level::TileAppearance 
 }
 
 void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
-    pos.x += 8; // TODO normalize coordinate system
-    pos.y -= 2;
     auto leftTopPos = cartesianToIsometric(pos, field.tileAppearance);
 
     sf::Color color(255, 255, 255);
@@ -529,48 +527,60 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     states.texture = &tileset;
 
     target.draw(background_sp, states);
-    target.draw(vertices, states);
 
-    sf::VertexArray playerVertices;
-    playerVertices.setPrimitiveType(sf::Quads);
+    {
+        sf::RenderStates statesCentered = states;
+        sf::Vector2f targetSize(target.getSize().x, target.getSize().y);
+        sf::Vector2f mapSize(vertices.getBounds().width, vertices.getBounds().height);
 
-    TileAppearance playerTileAppearance = PLAYER_FACED_TOP;
+        sf::Vector2f leftTopShouldBe = sf::Vector2f(targetSize - mapSize) / 2.f;
+        sf::Vector2f neededTransform(leftTopShouldBe.x - vertices.getBounds().left,
+                                     leftTopShouldBe.y - vertices.getBounds().top);
 
-    switch(hero.face) {
+        statesCentered.transform.translate(neededTransform.x, neededTransform.y);
 
-    case Hero::TOP:
-        playerTileAppearance = PLAYER_FACED_TOP;
-        break;
+        target.draw(vertices, statesCentered);
 
-    case Hero::BOTTOM:
-        playerTileAppearance = PLAYER_FACED_BOTTOM;
-        break;
+        sf::VertexArray playerVertices;
+        playerVertices.setPrimitiveType(sf::Quads);
 
-    case Hero::LEFT:
-        playerTileAppearance = PLAYER_FACED_LEFT;
-        break;
+        TileAppearance playerTileAppearance = PLAYER_FACED_TOP;
 
-    case Hero::RIGHT:
-        playerTileAppearance = PLAYER_FACED_RIGHT;
-        break;
+        switch(hero.face) {
 
-    default:
-        break;
+        case Hero::TOP:
+            playerTileAppearance = PLAYER_FACED_TOP;
+            break;
+
+        case Hero::BOTTOM:
+            playerTileAppearance = PLAYER_FACED_BOTTOM;
+            break;
+
+        case Hero::LEFT:
+            playerTileAppearance = PLAYER_FACED_LEFT;
+            break;
+
+        case Hero::RIGHT:
+            playerTileAppearance = PLAYER_FACED_RIGHT;
+            break;
+
+        default:
+            break;
+
+        }
+
+        const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
+
+        sf::Vector2f leftTopPos = cartesianToIsometric({hero.getPos().x, hero.getPos().y}, playerTileAppearance);
+
+        playerVertices.append(sf::Vertex(leftTopPos, playerSpriteInfo.texCoords.top_left));
+        playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y), playerSpriteInfo.texCoords.top_right));
+        playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_right));
+        playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_left));
+
+        target.draw(playerVertices, statesCentered);
 
     }
-
-    const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
-
-    // TODO (see sf::VertexArray::getBounds() -- center whole map)
-    // TODO normalize coordinate system:
-    sf::Vector2f leftTopPos = cartesianToIsometric({hero.getPos().x + 8, hero.getPos().y - 2}, playerTileAppearance);
-
-    playerVertices.append(sf::Vertex(leftTopPos, playerSpriteInfo.texCoords.top_left));
-    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y), playerSpriteInfo.texCoords.top_right));
-    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + playerSpriteInfo.width, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_right));
-    playerVertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + playerSpriteInfo.height), playerSpriteInfo.texCoords.bottom_left));
-
-    target.draw(playerVertices, states);
 
     switch (gameState) {
 
