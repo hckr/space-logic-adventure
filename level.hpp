@@ -61,7 +61,8 @@ private:
         NORMAL,
         START,
         FINISH,
-        DEACTIVATOR
+        DEACTIVATOR,
+        TELEPORT
     };
 
     struct Field {
@@ -140,7 +141,8 @@ private:
         { ""  , NORMAL },
         { "s" , START },
         { "f" , FINISH },
-        { "d" , DEACTIVATOR }
+        { "d" , DEACTIVATOR },
+        { "t" , TELEPORT }
     };
 
     const std::map<TileAppearance, int> fieldMovementInfo {
@@ -169,6 +171,11 @@ private:
 
     sf::Clock lostClock;
     const float lostLength = 1.5;
+
+    bool teleporting = false;
+    sf::Clock teleportClock;
+    const float teleportLength = 0.1;
+    sf::Vector2i teleportPos;
 
     float fieldLifetimeSeconds;
     std::string code;

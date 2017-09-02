@@ -1,4 +1,4 @@
-#include "level.hpp"
+﻿#include "level.hpp"
 
 #include <string>
 #include <fstream>
@@ -90,6 +90,10 @@ void Level::processEvent(const sf::Event &event) {
 }
 
 bool Level::movePlayer(PlayerMove move) {
+    if (teleporting) {
+        return false;
+    }
+
     int availableMoves;
     try {
         availableMoves = fieldMovementInfo.at(getField(hero.getPos().y, hero.getPos().x).tileAppearance);
@@ -234,6 +238,24 @@ void Level::update() {
                     return pair.second.id == currentField.functionData;
                 });
                 fieldIt->second.dangerous = false;
+                break;
+            }
+            case TELEPORT: {
+                if (teleporting) {
+                    if (teleportClock.getElapsedTime().asSeconds() >= teleportLength) {
+                        hero.setPos(teleportPos);
+                        stepOnField(teleportPos.y, teleportPos.x);
+                        teleporting = false;
+                    }
+                } else {
+                    auto fieldIt = std::find_if(map.begin(), map.end(), [&](auto pair) {
+                        return pair.second.id == currentField.functionData;
+                    });
+                    auto &[row, column] = fieldIt->first;
+                    teleportPos = { column, row };
+                    teleportClock.restart();
+                    teleporting = true;
+                }
                 break;
             }
             default:
@@ -479,6 +501,8 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
         color = {255, 255, 150};
     } else if (field.fieldFunction == DEACTIVATOR) {
         color = {150, 255, 255};
+    } else if (field.fieldFunction == TELEPORT) {
+        color = {255, 150, 255};
     }
 
     const SpriteInfo &fieldSpriteInfo = tilesSpriteInfo[field.tileAppearance];

@@ -1,5 +1,6 @@
 level_file;field_lifetime;level_code;message
 1.txt;1;EASY;Be careful, tiles are disappearing!
 2.txt;1;TURNS;Let's practice some turns.
-3.txt;1;FENCES;Dangerous tiles can be deactivated.
-4.txt;1;DURABILITY;Some tiles are more durable.
+3.txt;1;FENCES;Dangerous red tiles can be deactivated.
+4.txt;1;DURABILITY;You can step more than once on yellow tiles.
+5.txt;1;TELEPORT;Violet tiles teleport you... somewhere.
