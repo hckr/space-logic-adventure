@@ -14,7 +14,7 @@
 #include "utils.hpp"
 
 
-Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code, std::string message, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor)
+Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code, std::string message, sf::Texture &tileset, TileAppearanceToSpriteInfoMap_t tilesSpriteInfo, const sf::Font &font, sf::Sprite &background_sp, const sf::Color &fillColor, const sf::Color &outlineColor, sf::Vector2f targetSize)
     : Screen(fillColor, outlineColor, font),
       fieldLifetimeSeconds(fieldLifetimeSeconds),
       code(code),
@@ -34,6 +34,12 @@ Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code,
         auto& [y, x] = coords;
         addFieldToVertexArray(field , {x, y});
     }
+
+    sf::Vector2f mapSize(vertices.getBounds().width, vertices.getBounds().height);
+
+    sf::Vector2f leftTopShouldBe = sf::Vector2f(targetSize - mapSize) / 2.f;
+    levelTranslation = { leftTopShouldBe.x - vertices.getBounds().left,
+                         leftTopShouldBe.y - vertices.getBounds().top };
 }
 
 void Level::processEvent(const sf::Event &event) {
@@ -385,6 +391,8 @@ void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
 }
 
 void Level::closeMapBorders() {
+    // TODO unfinished
+
     for (auto& [coords, field] : map) {
         auto& [row, column] = coords;
 
@@ -404,6 +412,13 @@ void Level::closeMapBorders() {
             } else if (map.count(std::make_pair(row, column + 1)) == 0) {
                 field.tileAppearance = FIELD_HORIZONTAL_OPENED_LEFT;
             }
+            try {
+                switch(map.at(std::make_pair(row, column - 1)).tileAppearance) {
+                case FIELD_CLOSED_RIGHT:
+                    field.tileAppearance = FIELD_HORIZONTAL_OPENED_RIGHT;
+                    break;
+                }
+            } catch (std::out_of_range) { }
             break;
 
         default:
@@ -554,14 +569,7 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
     {
         sf::RenderStates statesCentered = states;
-        sf::Vector2f targetSize(target.getSize().x, target.getSize().y);
-        sf::Vector2f mapSize(vertices.getBounds().width, vertices.getBounds().height);
-
-        sf::Vector2f leftTopShouldBe = sf::Vector2f(targetSize - mapSize) / 2.f;
-        sf::Vector2f neededTransform(leftTopShouldBe.x - vertices.getBounds().left,
-                                     leftTopShouldBe.y - vertices.getBounds().top);
-
-        statesCentered.transform.translate(neededTransform.x, neededTransform.y);
+        statesCentered.transform.translate(levelTranslation.x, levelTranslation.y);
 
         target.draw(vertices, statesCentered);
 

@@ -22,8 +22,6 @@ auto createCenteredWindow(int width, int height) {
     return window;
 }
 
-std::unique_ptr<sf::RenderWindow> window;
-
 Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
     { Level::TileAppearance::FIELD_VERTICAL, Tileset::metalTileConnectStraight_NE },
     { Level::TileAppearance::FIELD_VERTICAL_OPENED_TOP, Tileset::metalTileConnectEnd_SE },
@@ -53,7 +51,7 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
 };
 
 int main() {
-    /*auto */window = createCenteredWindow(860, 700);
+    auto window = createCenteredWindow(860, 700);
     window->setFramerateLimit(60);
     window->setKeyRepeatEnabled(false);
 
@@ -122,6 +120,8 @@ int main() {
     }
     size_t currentLevelIndex = 0;
 
+    sf::Vector2f targetSize(window->getSize().x, window->getSize().y);
+
     std::function<void(Event)> eventReceiver = [&](Event event) {
         switch (event.type) {
         case Event::MENU_START_NEW_GAME:
@@ -133,7 +133,7 @@ int main() {
         case Event::MENU_TRY_AGAIN:
             if (currentLevelIndex < levelsData.size()) {
                 const LevelData &levelData = levelsData[currentLevelIndex];
-                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
+                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue, targetSize);
                 levelScreen->setEventReceiver(eventReceiver);
                 setCurrentScreen(levelScreen);
             } else {
@@ -164,7 +164,7 @@ int main() {
             if (levelDataIt != levelsData.end()) {
                 currentLevelIndex = levelDataIt - levelsData.begin();
                 auto levelData = *levelDataIt;
-                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue);
+                auto levelScreen = std::make_shared<Level>(levelData.fileName, levelData.fieldLifetime, levelData.code, levelData.message, tileset, tilesSpriteInfo, font, background_sp, white, lightBlue, targetSize);
                 levelScreen->setEventReceiver(eventReceiver);
                 setCurrentScreen(levelScreen);
             } else {
