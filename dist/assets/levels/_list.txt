@@ -4,3 +4,5 @@ level_file;field_lifetime;level_code;message
 3.txt;1;FENCES;Dangerous red tiles can be deactivated.
 4.txt;1;DURABILITY;You can step more than once on yellow tiles.
 5.txt;1;TELEPORT;Violet tiles teleport you... somewhere.
+6.txt;1;DETACHED;This one should be easy.
+7.txt;1;CHALLENGE;For the first time, something challenging.
