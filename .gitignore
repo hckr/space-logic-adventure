@@ -77,3 +77,4 @@ CMakeLists.txt.user
 # dist folder except assets
 dist/*
 !dist/assets
+dist-win32
