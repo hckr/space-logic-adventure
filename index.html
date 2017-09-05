@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Space Logic Adventure</title>
+    <link href="https://fonts.googleapis.com/css?family=VT323&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+    <style>
+    html {
+        font-family: 'VT323', monospace;
+        font-size: 24px;
+        background: url('background.png') #18232a;
+        text-align: center;
+        color: rgb(50, 200, 255);
+    }
+    h1 {
+        font-size: 72px;
+        margin: 10px 10px 40px;
+        -webkit-text-stroke: 3px white;
+        text-stroke: 3px white;
+    }
+    @media screen and (max-width: 800px) {
+        h1 {
+            font-size: 64px;
+        }
+    }
+    a {
+        color: inherit;
+    }
+    .downloads {
+        margin-bottom: 10px;
+    }
+    .downloads a {
+        display: inline-block;
+        margin: 10px 20px;
+        width: 200px;
+        max-width: 95%;
+        white-space: pre-wrap;
+        text-decoration: none;
+        border: 1px solid white;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        padding: 10px 20px;
+        line-height: 20px;
+        transition: all ease-in-out .1s;
+    }
+    .downloads a:hover, .downloads a:focus {
+        color: rgb(105, 255, 255);
+        border-color: rgb(105, 255, 255);
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    .downloads span:before {
+        content: '\A';
+    }
+    .downloads span {
+        font-size: 16px;
+    }
+    .sources {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 40px;
+    }
+    .sources a {
+        color: rgb(50, 200, 255);
+        text-decoration: none;
+        transition: all ease-in-out .1s;
+    }
+    .sources a:hover, .sources a:focus {
+        color: rgb(105, 255, 255);
+    }
+    .preview {
+        display: block;
+        max-width: 95%;
+        margin: 0 auto;
+    }
+    .footer {
+        color: white;
+        margin: 10px;
+        font-size: 16px;
+    }
+    .footer a {
+        border-bottom: 1px dashed rgb(50, 200, 255);
+        text-decoration: none;
+        transition: all ease-in-out .1s;
+    }
+    .footer a:hover, .footer a:focus {
+        color: rgb(105, 255, 255);
+        border-bottom-style: solid;
+    }
+    </style>
+</head>
+<body>
+    <h1>Space Logic Adventure</h1>
+    <div class="downloads">
+        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.1/space-logic-adventure-v1.1-win32.zip" download>Download for Windows <span>(ver. 1.1 32-bit)</span></a>
+        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.1/space-logic-adventure-v1.1-linux-x64.zip" download>Download for Linux <span>(ver. 1.1 64-bit)</span></a>
+    </div>
+    <div class="sources">If you're interested, you can also check out <a href="https://github.com/hckr/space-logic-adventure">a source repository</a>.</div>
+    <img src="preview.gif" class="preview">
+    <div class="footer">Game created by <a href="https://github.com/hckr">Jakub Młokosiewicz</a>, 2017.</div>
+</body>
+</html>
