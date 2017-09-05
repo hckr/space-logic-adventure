@@ -14,23 +14,32 @@ images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*Tile*
 images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*spaceCraft3*') ]
 images += [ { 'scale_factor': 0.5, 'file_name': f } for f in glob('../gfx/*Fence*') ]
 
-tilemap_temp = Image.new('RGBA', (5000, 100), (255, 0, 0, 0))
+tilemap_temp = Image.new('RGBA', (1000, 1000), (255, 0, 0, 0))
 
 curr_x = 0
-max_y = 0
+curr_y = 0
+max_image_y_in_line = 0
+max_line_width = 0
 
 sprites = []
 
 for image in images:
     im = Image.open(image['file_name'])
     scaled_im = im.resize((round(im.width * image['scale_factor']), round(im.height * image['scale_factor'])), Image.LANCZOS)
-    tilemap_temp.paste(scaled_im, (curr_x, 0))
+    tilemap_temp.paste(scaled_im, (curr_x, curr_y))
     sprites.append({ 'name': splitext(basename(image['file_name']))[0], 'posX': curr_x,
-                     'width': scaled_im.width, 'height': scaled_im.height })
+                     'posY': curr_y, 'width': scaled_im.width, 'height': scaled_im.height })
     curr_x += scaled_im.width
-    max_y = max(scaled_im.height, max_y)
+    max_image_y_in_line = max(scaled_im.height, max_image_y_in_line)
+    if curr_x > 400:
+        max_line_width = max(max_line_width, curr_x)
+        curr_x = 0
+        curr_y += max_image_y_in_line
+else:
+    max_line_width = max(max_line_width, curr_x)
+    curr_y += max_image_y_in_line
 
-tilemap = tilemap_temp.crop((0, 0, curr_x, max_y))
+tilemap = tilemap_temp.crop((0, 0, max_line_width, curr_y))
 tilemap.save('../dist/assets/tileset.png', optimize=True)
 
 with open('../tileset.hpp', 'w') as f:
@@ -49,9 +58,9 @@ namespace Tileset {
         f.write('const SpriteInfo %s = { %s, %s, { sf::Vector2f(%s, %s), sf::Vector2f(%s, %s), sf::Vector2f(%s, %s), sf::Vector2f(%s, %s) } };\n' % (
                 sprite['name'],
                 sprite['width'], sprite['height'],
-                sprite['posX'], 0,
-                sprite['posX'] + sprite['width'], 0,
-                sprite['posX'] + sprite['width'], sprite['height'],
-                sprite['posX'], sprite['height']
+                sprite['posX'], sprite['posY'],
+                sprite['posX'] + sprite['width'], sprite['posY'],
+                sprite['posX'] + sprite['width'], sprite['posY'] + sprite['height'],
+                sprite['posX'], sprite['posY'] + sprite['height']
                 ))
     f.write('\n}\n')
