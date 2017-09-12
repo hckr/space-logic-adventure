@@ -14,12 +14,13 @@
         font-size: 24px;
         background: url('background.png') #18232a;
         text-align: center;
-        color: rgb(50, 200, 255);
+        color: white;
     }
     h1 {
         font-size: 72px;
         margin: 10px 10px 40px;
-        -webkit-text-stroke: 3px white;
+        color: rgb(50, 200, 255);
+        -webkit-text-stroke: 2px white;
         text-stroke: 3px white;
     }
     @media screen and (max-width: 800px) {
@@ -32,6 +33,7 @@
     }
     .downloads {
         margin-bottom: 10px;
+        color: rgb(50, 200, 255);
     }
     .downloads a {
         display: inline-block;
@@ -58,23 +60,27 @@
     .downloads span {
         font-size: 16px;
     }
-    .sources {
+    .info {
         color: white;
         font-size: 18px;
         margin-bottom: 40px;
     }
-    .sources a {
+    .info a {
         color: rgb(50, 200, 255);
         text-decoration: none;
         transition: all ease-in-out .1s;
     }
-    .sources a:hover, .sources a:focus {
+    .info a:hover, .info a:focus {
         color: rgb(105, 255, 255);
     }
     .preview {
         display: block;
         max-width: 95%;
         margin: 0 auto;
+    }
+    .preview img {
+        margin: 10px;
+        max-width: 100%;
     }
     .footer {
         color: white;
@@ -98,8 +104,14 @@
         <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.1/space-logic-adventure-v1.1-win32.zip" download>Download for Windows <span>(ver. 1.1 32-bit)</span></a>
         <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.1/space-logic-adventure-v1.1-linux-x64.zip" download>Download for Linux <span>(ver. 1.1 64-bit)</span></a>
     </div>
-    <div class="sources">If you're interested, you can also check out <a href="https://github.com/hckr/space-logic-adventure">a source repository</a>.</div>
-    <img src="preview.gif" class="preview">
+    <div class="info">
+        There might be an Android version if I manage to cross-compile the code.<br>
+        If you're interested, you can check out <a href="https://github.com/hckr/space-logic-adventure">a source repository</a>.
+    </div>
+    <figure class="preview">
+        <figcaption>Preview:</figcaption>
+        <img src="preview.gif">
+    </figure>
     <div class="footer">Game created by <a href="https://github.com/hckr">Jakub Młokosiewicz</a>, 2017.</div>
 </body>
 </html>
