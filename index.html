@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:image" content="https://hckr.pl/space-logic-adventure/og_preview_201709052102.jpg">
-    <title>Space Logic Adventure</title>
+    <title>Space Logic Adventure – an arcade game with a pinch of logic</title>
     <link href="https://fonts.googleapis.com/css?family=VT323&amp;subset=latin-ext" rel="stylesheet">
     <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
     <style>
@@ -29,7 +29,18 @@
         }
     }
     a {
-        color: inherit;
+        color: rgb(50, 200, 255);
+        text-decoration: none;
+        transition: all ease-in-out .1s;
+    }
+    a:hover, a:focus {
+        color: rgb(105, 255, 255);
+    }
+    .description {
+        text-align: left;
+        width: 700px;
+        max-width: 95%;
+        margin: 40px auto;
     }
     .downloads {
         margin-bottom: 10px;
@@ -65,14 +76,6 @@
         font-size: 18px;
         margin-bottom: 40px;
     }
-    .info a {
-        color: rgb(50, 200, 255);
-        text-decoration: none;
-        transition: all ease-in-out .1s;
-    }
-    .info a:hover, .info a:focus {
-        color: rgb(105, 255, 255);
-    }
     .preview {
         display: block;
         max-width: 95%;
@@ -89,17 +92,17 @@
     }
     .footer a {
         border-bottom: 1px dashed rgb(50, 200, 255);
-        text-decoration: none;
-        transition: all ease-in-out .1s;
     }
     .footer a:hover, .footer a:focus {
-        color: rgb(105, 255, 255);
         border-bottom-style: solid;
     }
     </style>
 </head>
 <body>
     <h1>Space Logic Adventure</h1>
+    <div class="description">
+        Space Logic Adventure is an arcade game (with a pinch of logic I guess) made for <a href="http://gynvael.coldwind.pl/?id=657">Gynvael's Summer GameDev Challenge 2017</a>. I am very happy about <a href="http://gynvael.coldwind.pl/?lang=en&id=663">winning the first place</a>. More levels are on the way!
+    </div>
     <div class="downloads">
         <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-win32.zip" download>Download for Windows <span>(ver. 1.2 32-bit)</span></a>
         <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-linux-x64.zip" download>Download for Linux <span>(ver. 1.2 64-bit)</span></a>
@@ -111,7 +114,7 @@
         If you're interested, you can check out <a href="https://github.com/hckr/space-logic-adventure">a source repository</a>.
     </div>
     <figure class="preview">
-        <figcaption>Preview:</figcaption>
+        <figcaption>Preview animation:</figcaption>
         <img src="preview.gif">
     </figure>
     <div class="footer">Game created by <a href="https://github.com/hckr">Jakub Młokosiewicz</a>, 2017.</div>
