@@ -78,3 +78,11 @@ CMakeLists.txt.user
 dist/*
 !dist/assets
 dist-win32
+
+# android folder except needed files
+android/*
+!android/jni
+android/jni/*
+!android/jni/Android.mk
+!android/jni/Application.mk
+!android/res

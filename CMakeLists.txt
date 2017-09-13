@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 FILE(GLOB HEADERS "*.hpp")
 add_custom_target(headers SOURCES ${HEADERS})
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 
 find_package(SFML 2.4.2 REQUIRED system window graphics audio)
 if(SFML_FOUND)
