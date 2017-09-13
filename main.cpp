@@ -51,22 +51,32 @@ Level::TileAppearanceToSpriteInfoMap_t tilesSpriteInfo {
 };
 
 int main() {
-    auto window = createCenteredWindow(860, 700);
+    size_t winWidth = 860,
+           winHeight = 700;
+    auto window = createCenteredWindow(winWidth, winHeight);
     window->setFramerateLimit(60);
     window->setKeyRepeatEnabled(false);
 
     SoundManager& soundManager = SoundManager::getInstance();
 
-    sf::Texture background_tx;
-    background_tx.loadFromFile("assets/background.png");
-    background_tx.setRepeated(true);
-    background_tx.setSmooth(true);
-    sf::Sprite background_sp(background_tx);
-    background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
+    sf::Texture background_tile_tx;
+    background_tile_tx.loadFromFile("assets/background.png");
+    background_tile_tx.setSmooth(true);
+    sf::Sprite background_tile_sp(background_tile_tx);
+    sf::RenderTexture background_rtx;
+    background_rtx.create(winWidth, winHeight);
+    background_rtx.setSmooth(true);
+    for (size_t posX = 0; posX < winWidth; posX += background_tile_tx.getSize().x) {
+        for (size_t posY = 0; posY < winHeight; posY += background_tile_tx.getSize().y) {
+            background_tile_sp.setPosition(posX, posY);
+            background_rtx.draw(background_tile_sp);
+        }
+    }
+    background_rtx.display();
+    sf::Sprite background_sp(background_rtx.getTexture());
 
-    sf::Texture menu_background_tx(background_tx);
+    sf::Texture menu_background_tx(background_rtx.getTexture());
     sf::Sprite menu_background_sp(menu_background_tx);
-    menu_background_sp.setTextureRect({ 0, 0, static_cast<int>(window->getSize().x), static_cast<int>(window->getSize().y) });
     menu_background_sp.setColor(sf::Color(200, 200, 200));
 
     sf::Texture tileset;
@@ -148,7 +158,7 @@ int main() {
             setCurrentScreen(menuScreen);
             break;
         case Event::SHOW_CLEAN_MENU:
-            menu_background_tx = background_tx;
+            menu_background_tx = background_rtx.getTexture();
             menuScreen->enableTryAgain(false);
             menuScreen->setActiveOption(MenuScreen::START_NEW_GAME);
             setCurrentScreen(menuScreen);
