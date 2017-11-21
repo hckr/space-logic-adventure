@@ -1,39 +1,26 @@
 #pragma once
 
-#include <functional>
-
 #include <SFML/Graphics.hpp>
 
-
-struct Event {
-    enum Type {
-        MENU_START_NEW_GAME,
-        MENU_TRY_AGAIN,
-        MENU_QUIT,
-        MENU_LEVEL_CODE,
-        MENU_CREDITS,
-        LEVEL_FINISHED,
-        SHOW_MENU_WITH_TRY_AGAIN,
-        SHOW_CLEAN_MENU,
-        SHOW_MENU
-    } type;
-    void *data = 0;
-};
+#include "eventreceiver.hpp"
 
 class Screen : public sf::Drawable {
+    EventReceiver *eventReceiver_;
+
 protected:
-    std::function<void (Event)> eventReceiver;
+    void eventReceiver(Event event) {
+        eventReceiver_->eventReceiver(event);
+    }
 
 public:
     Screen(const sf::Color &fillColor, const sf::Color &outlineColor, const sf::Font &font)
-        : eventReceiver([](Event){}),
-          fillColor(fillColor),
+        : fillColor(fillColor),
           outlineColor(outlineColor),
           font(font)
     { }
 
-    void setEventReceiver(std::function<void (Event)> receiver) {
-        eventReceiver = receiver;
+    void setEventReceiver(EventReceiver *eventReceiver) {
+        eventReceiver_ = eventReceiver;
     }
 
     void drawText(sf::RenderTarget &target, sf::RenderStates states, sf::String text, unsigned int characterSize, float outlineThickness, float x, float y) const {

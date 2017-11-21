@@ -2,7 +2,6 @@
 
 #include <string>
 #include <fstream>
-#include <tuple>
 #include <cctype>
 #include <stdexcept>
 #include <cmath>
@@ -40,6 +39,40 @@ Level::Level(std::string fileName, float fieldLifetimeSeconds, std::string code,
     sf::Vector2f leftTopShouldBe = sf::Vector2f(targetSize - mapSize) / 2.f;
     levelTranslation = { leftTopShouldBe.x - vertices.getBounds().left,
                          leftTopShouldBe.y - vertices.getBounds().top };
+
+    symbolToTileAppearance[R"(|)"] = FIELD_VERTICAL;
+    symbolToTileAppearance[R"(-)"] = FIELD_HORIZONTAL;
+    symbolToTileAppearance[R"(\_)"] = FIELD_UP_RIGHT_TURN;
+    symbolToTileAppearance[R"(_/)"] = FIELD_LEFT_UP_TURN;
+    symbolToTileAppearance[R"(/~)"] = FIELD_DOWN_RIGHT_TURN;
+    symbolToTileAppearance[R"(~\)"] = FIELD_LEFT_DOWN_TURN;
+    symbolToTileAppearance[R"(-v-)"] = FIELD_CLOSED_TOP;
+    symbolToTileAppearance[R"(-|)"] = FIELD_CLOSED_RIGHT;
+    symbolToTileAppearance[R"(-^-)"] = FIELD_CLOSED_BOTTOM;
+    symbolToTileAppearance[R"(|-)"] = FIELD_CLOSED_LEFT;
+    symbolToTileAppearance[R"(+)"] = FIELD_OPENED_ALL_SIDES;
+
+    symbolToFieldFunction[""] = NORMAL;
+    symbolToFieldFunction["s"] = START;
+    symbolToFieldFunction["f"] = FINISH;
+    symbolToFieldFunction["d"] = DEACTIVATOR;
+    symbolToFieldFunction["t"] = TELEPORT;
+
+    fieldMovementInfo[FIELD_VERTICAL] = Direction::TOP | Direction::BOTTOM;
+    fieldMovementInfo[FIELD_VERTICAL_OPENED_TOP] = Direction::TOP;
+    fieldMovementInfo[FIELD_VERTICAL_OPENED_BOTTOM] = Direction::BOTTOM;
+    fieldMovementInfo[FIELD_HORIZONTAL] = Direction::LEFT | Direction::RIGHT;
+    fieldMovementInfo[FIELD_HORIZONTAL_OPENED_LEFT] = Direction::LEFT;
+    fieldMovementInfo[FIELD_HORIZONTAL_OPENED_RIGHT] = Direction::RIGHT;
+    fieldMovementInfo[FIELD_UP_RIGHT_TURN] = Direction::TOP | Direction::RIGHT;
+    fieldMovementInfo[FIELD_LEFT_UP_TURN] = Direction::TOP | Direction::LEFT;
+    fieldMovementInfo[FIELD_DOWN_RIGHT_TURN] = Direction::BOTTOM | Direction::RIGHT;
+    fieldMovementInfo[FIELD_LEFT_DOWN_TURN] = Direction::BOTTOM | Direction::LEFT;
+    fieldMovementInfo[FIELD_CLOSED_TOP] = Direction::RIGHT | Direction::BOTTOM | Direction::LEFT;
+    fieldMovementInfo[FIELD_CLOSED_RIGHT] = Direction::TOP | Direction::BOTTOM | Direction::LEFT;
+    fieldMovementInfo[FIELD_CLOSED_BOTTOM] = Direction::TOP | Direction::RIGHT | Direction::LEFT;
+    fieldMovementInfo[FIELD_CLOSED_LEFT] = Direction::TOP | Direction::RIGHT | Direction::BOTTOM;
+    fieldMovementInfo[FIELD_OPENED_ALL_SIDES] = Direction::TOP | Direction::RIGHT | Direction::BOTTOM | Direction::LEFT;
 }
 
 void Level::processEvent(const sf::Event &event) {
@@ -102,7 +135,7 @@ bool Level::movePlayer(PlayerMove move) {
 
     int availableMoves;
     try {
-        availableMoves = fieldMovementInfo.at(getField(hero.getPos().y, hero.getPos().x).tileAppearance);
+        availableMoves = fieldMovementInfo[getField(hero.getPos().y, hero.getPos().x).tileAppearance];
     } catch (std::out_of_range) {
         return false;
     }
@@ -199,13 +232,13 @@ void Level::update() {
                     field.active = false;
                     seconds = fieldLifetimeSeconds;
                 }
-                modifyFieldVertices(field, [&](auto& vertex) {
-                    vertex.color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
-                });
+                for (int i = 0; i < 4; ++i) {
+                    vertices[field.firstVertexIndex + i].color.a = int(255 * (1 - seconds / fieldLifetimeSeconds));
+                }
             } else if (field.durability == 1 && field.dangerous == false && field.fieldFunction == NORMAL) {
-                modifyFieldVertices(field, [&](auto& vertex) {
-                    vertex.color = {255, 255, 255}; // TODO add animation?
-                });
+                for (int i = 0; i < 4; ++i) {
+                    vertices[field.firstVertexIndex + i].color = {255, 255, 255}; // TODO add animation?
+                }
             }
             if (field.dangerous == false && field.fenceVerticesCount > 0) {
                 // TODO add animation?
@@ -299,8 +332,10 @@ void Level::update() {
 }
 
 void Level::loadMapFromFile(std::string fileName) {
-    std::ifstream file(LEVELS_DIR + fileName);
-    for (auto [i, line] = std::make_tuple(0, std::string()); std::getline(file, line); ++i) {
+    std::ifstream file((LEVELS_DIR + fileName).c_str());
+    int i;
+    std::string line;
+    for (; std::getline(file, line); ++i) {
         parseRow(i, line);
     }
     for (auto& [coords, field] : map) {
@@ -375,7 +410,7 @@ void Level::parseRow(int index, std::string row) { // TODO crappy code is crappy
                 break;
             case DURABILITY:
                 if (!str.empty()) {
-                    field.durability = std::stoi(str);
+                    field.durability = atoi(str.c_str());
                 }
                 break;
 
@@ -413,7 +448,7 @@ void Level::closeMapBorders() {
                 field.tileAppearance = FIELD_HORIZONTAL_OPENED_LEFT;
             }
             try {
-                switch(map.at(std::make_pair(row, column - 1)).tileAppearance) {
+                switch(map[std::make_pair(row, column - 1)].tileAppearance) {
                 case FIELD_CLOSED_RIGHT:
                     field.tileAppearance = FIELD_HORIZONTAL_OPENED_RIGHT;
                     break;
@@ -433,7 +468,7 @@ void Level::addNewField(int row, int column, Field field) {
 }
 
 Level::Field& Level::getField(int row, int column) {
-    return map.at(std::make_pair(row, column));
+    return map[std::make_pair(row, column)];
 }
 
 void Level::setFieldFunction(int row, int column, FieldFunction function) {
@@ -535,7 +570,18 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
         vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + finishSpriteInfo.height), color, finishSpriteInfo.texCoords.bottom_left));
     } else if (field.dangerous == true) {
         field.firstFenceVertexIndex = vertices.getVertexCount();
-        for (auto fenceTileAppearance : { FENCE_TOP_RIGHT, FENCE_BOTTOM_LEFT }) {
+        {
+            auto fenceTileAppearance = FENCE_TOP_RIGHT;
+            auto leftTopPos = cartesianToIsometric(pos, fenceTileAppearance);
+            const SpriteInfo &fenceSpriteInfo = tilesSpriteInfo[fenceTileAppearance];
+            vertices.append(sf::Vertex(leftTopPos, fenceSpriteInfo.texCoords.top_left));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fenceSpriteInfo.width, leftTopPos.y), fenceSpriteInfo.texCoords.top_right));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x + fenceSpriteInfo.width, leftTopPos.y + fenceSpriteInfo.height), fenceSpriteInfo.texCoords.bottom_right));
+            vertices.append(sf::Vertex(sf::Vector2f(leftTopPos.x, leftTopPos.y + fenceSpriteInfo.height), fenceSpriteInfo.texCoords.bottom_left));
+            field.fenceVerticesCount += 4;
+        }
+        {
+            auto fenceTileAppearance = FENCE_BOTTOM_LEFT;
             auto leftTopPos = cartesianToIsometric(pos, fenceTileAppearance);
             const SpriteInfo &fenceSpriteInfo = tilesSpriteInfo[fenceTileAppearance];
             vertices.append(sf::Vertex(leftTopPos, fenceSpriteInfo.texCoords.top_left));
@@ -547,7 +593,7 @@ void Level::addFieldToVertexArray(Field &field, sf::Vector2i pos) {
     }
 }
 
-void Level::modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex) {
+void Level::modifyFieldVertices(Field &field, void (*modifyVertex)(sf::Vertex &)) {
     for (int i = 0; i < 4; ++i) {
         modifyVertex(vertices[field.firstVertexIndex + i]);
     }
@@ -601,7 +647,7 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
         }
 
-        const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.at(playerTileAppearance);
+        const SpriteInfo &playerSpriteInfo = tilesSpriteInfo.find(playerTileAppearance)->second;
 
         sf::Vector2f leftTopPos = cartesianToIsometric({hero.getPos().x, hero.getPos().y}, playerTileAppearance);
 
@@ -625,7 +671,9 @@ void Level::draw(sf::RenderTarget &target, sf::RenderStates states) const
     case COUNTING:
     {
         int secondsLeft = std::ceil(countingLength - countingClock.getElapsedTime().asSeconds());
-        drawCenteredText(target, states, std::to_string(secondsLeft), 80, 3, target.getSize().y / 2 - 80);
+        char buf[5];
+        sprintf(buf, "%d", secondsLeft);
+        drawCenteredText(target, states, buf, 80, 3, target.getSize().y / 2 - 80);
         break;
     }
 

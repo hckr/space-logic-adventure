@@ -2,11 +2,11 @@
 
 void SoundManager::lowerMusicVolume(bool lower) {
     if (lower) {
-        sounds.at(MENU).setVolume(50);
-        sounds.at(LEVEL).setVolume(50);
+        sounds[MENU].setVolume(50);
+        sounds[LEVEL].setVolume(50);
     } else {
-        sounds.at(MENU).setVolume(100);
-        sounds.at(LEVEL).setVolume(100);
+        sounds[MENU].setVolume(100);
+        sounds[LEVEL].setVolume(100);
     }
 }
 
@@ -17,8 +17,13 @@ SoundManager::SoundManager()
     levelCompletedSB.loadFromFile(SOUNDS_DIR + "level_completed.ogg");
     gameOverSB.loadFromFile(SOUNDS_DIR + "game_over.ogg");
 
-    sounds.at(MENU).setLoop(true);
-    sounds.at(LEVEL).setLoop(true);
+    sounds[MENU] = sf::Sound(menuSB);
+    sounds[LEVEL] = sf::Sound(levelSB);
+    sounds[LEVEL_COMPLETED] = sf::Sound(levelCompletedSB);
+    sounds[GAME_OVER] = sf::Sound(gameOverSB);
+
+    sounds[MENU].setLoop(true);
+    sounds[LEVEL].setLoop(true);
 }
 
 SoundManager* SoundManager::instance = 0;
@@ -44,15 +49,15 @@ void SoundManager::changeMusic(Sound music) {
 
     switch (music) {
     case NONE:
-        sounds.at(musicPlaying).stop();
+        sounds[musicPlaying].stop();
         break;
 
     case MENU:
     case LEVEL:
         if (musicPlaying != NONE) {
-            sounds.at(musicPlaying).stop();
+            sounds[musicPlaying].stop();
         }
-        sounds.at(music).play();
+        sounds[music].play();
         musicPlaying = music;
         break;
 
@@ -66,7 +71,7 @@ void SoundManager::playEffect(Sound effect) {
     case LEVEL_COMPLETED:
     case GAME_OVER:
         lowerMusicVolume(true);
-        sounds.at(effect).play();
+        sounds[effect].play();
         effectPlaying = effect;
         break;
 
@@ -76,7 +81,7 @@ void SoundManager::playEffect(Sound effect) {
 }
 
 void SoundManager::update() {
-    if (effectPlaying != NONE && sounds.at(effectPlaying).getStatus() == sf::SoundSource::Stopped) {
+    if (effectPlaying != NONE && sounds[effectPlaying].getStatus() == sf::SoundSource::Stopped) {
         lowerMusicVolume(false);
         effectPlaying = NONE;
     }

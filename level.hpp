@@ -2,7 +2,6 @@
 
 #include <string>
 #include <map>
-#include <functional>
 
 #include <SFML/Graphics.hpp>
 
@@ -108,7 +107,7 @@ private:
     Field& getField(int row, int column);
     void setFieldFunction(int row, int column, FieldFunction function);
     void addFieldToVertexArray(Field &field, sf::Vector2i pos);
-    void modifyFieldVertices(Field &field, std::function<void (sf::Vertex &)> modifyVertex);
+    void modifyFieldVertices(Field &field, void (*modifyVertex)(sf::Vertex &));
     void stepOnField(int row, int column);
     void changeGameState(GameState newState);
 
@@ -123,45 +122,11 @@ private:
         LEFT = 8
     };
 
-    const std::map<std::string, TileAppearance> symbolToTileAppearance {
-        { R"(|)"  , FIELD_VERTICAL },
-        { R"(-)"  , FIELD_HORIZONTAL },
-        { R"(\_)" , FIELD_UP_RIGHT_TURN },
-        { R"(_/)" , FIELD_LEFT_UP_TURN },
-        { R"(/~)" , FIELD_DOWN_RIGHT_TURN },
-        { R"(~\)" , FIELD_LEFT_DOWN_TURN },
-        { R"(-v-)", FIELD_CLOSED_TOP },
-        { R"(-|)" , FIELD_CLOSED_RIGHT },
-        { R"(-^-)", FIELD_CLOSED_BOTTOM },
-        { R"(|-)" , FIELD_CLOSED_LEFT },
-        { R"(+)"  , FIELD_OPENED_ALL_SIDES }
-    };
+    std::map<std::string, TileAppearance> symbolToTileAppearance;
 
-    const std::map<std::string, FieldFunction> symbolToFieldFunction {
-        { ""  , NORMAL },
-        { "s" , START },
-        { "f" , FINISH },
-        { "d" , DEACTIVATOR },
-        { "t" , TELEPORT }
-    };
+    std::map<std::string, FieldFunction> symbolToFieldFunction;
 
-    const std::map<TileAppearance, int> fieldMovementInfo {
-        { FIELD_VERTICAL,                Direction::TOP | Direction::BOTTOM },
-        { FIELD_VERTICAL_OPENED_TOP,     Direction::TOP },
-        { FIELD_VERTICAL_OPENED_BOTTOM,  Direction::BOTTOM },
-        { FIELD_HORIZONTAL,              Direction::LEFT | Direction::RIGHT },
-        { FIELD_HORIZONTAL_OPENED_LEFT,  Direction::LEFT },
-        { FIELD_HORIZONTAL_OPENED_RIGHT, Direction::RIGHT },
-        { FIELD_UP_RIGHT_TURN,           Direction::TOP | Direction::RIGHT },
-        { FIELD_LEFT_UP_TURN,            Direction::TOP | Direction::LEFT },
-        { FIELD_DOWN_RIGHT_TURN,         Direction::BOTTOM | Direction::RIGHT },
-        { FIELD_LEFT_DOWN_TURN,          Direction::BOTTOM | Direction::LEFT },
-        { FIELD_CLOSED_TOP,              Direction::RIGHT | Direction::BOTTOM | Direction::LEFT },
-        { FIELD_CLOSED_RIGHT,            Direction::TOP | Direction::BOTTOM | Direction::LEFT },
-        { FIELD_CLOSED_BOTTOM,           Direction::TOP | Direction::RIGHT | Direction::LEFT },
-        { FIELD_CLOSED_LEFT,             Direction::TOP | Direction::RIGHT | Direction::BOTTOM },
-        { FIELD_OPENED_ALL_SIDES,        Direction::TOP | Direction::RIGHT | Direction::BOTTOM | Direction::LEFT }
-    };
+    std::map<TileAppearance, int> fieldMovementInfo;
 
     sf::Clock countingClock;
     const float countingLength = 3.;

@@ -17,7 +17,7 @@ MenuScreen::MenuScreen(const sf::Font &font, sf::Sprite &background_sp, const sf
 }
 
 void MenuScreen::enableTryAgain(bool enable) {
-    auto tryAgain = std::find_if(std::begin(menuOptions), std::end(menuOptions), [](auto menuOption) {
+    auto tryAgain = std::find_if(menuOptions.begin(), menuOptions.end(), [](auto menuOption) {
         return menuOption.id == TRY_AGAIN;
     });
     if (tryAgain != menuOptions.end()) {
@@ -27,7 +27,7 @@ void MenuScreen::enableTryAgain(bool enable) {
 
 void MenuScreen::setActiveOption(MenuScreen::MenuOptionId menuOptionId)
 {
-    auto option = std::find_if(std::begin(menuOptions), std::end(menuOptions), [&](auto menuOption) {
+    auto option = std::find_if(menuOptions.begin(), menuOptions.end(), [&](auto menuOption) {
         return menuOption.id == menuOptionId;
     });
     if (option != menuOptions.end()) {

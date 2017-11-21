@@ -31,12 +31,7 @@ private:
     sf::SoundBuffer levelCompletedSB;
     sf::SoundBuffer gameOverSB;
 
-    std::map<Sound, sf::Sound> sounds = {
-        { MENU, sf::Sound(menuSB) },
-        { LEVEL, sf::Sound(levelSB) },
-        { LEVEL_COMPLETED, sf::Sound(levelCompletedSB) },
-        { GAME_OVER, sf::Sound(gameOverSB) }
-    };
+    std::map<Sound, sf::Sound> sounds;
 
     Sound effectPlaying = NONE;
     Sound musicPlaying = NONE;
