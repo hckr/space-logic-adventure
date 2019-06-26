@@ -13,8 +13,6 @@ add_custom_target(headers SOURCES ${HEADERS})
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-find_package(SFML 2.4.2 REQUIRED system window graphics audio)
-if(SFML_FOUND)
-    include_directories(${SFML_INCLUDE_DIR})
-    target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
-endif()
+find_package(SFML 2 REQUIRED audio graphics window system)
+include_directories(${SFML_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} sfml-audio sfml-graphics sfml-window sfml-system)
