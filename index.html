@@ -9,114 +9,141 @@
     <link href="https://fonts.googleapis.com/css?family=VT323&amp;subset=latin-ext" rel="stylesheet">
     <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
     <style>
-    html {
-        font-family: 'VT323', monospace;
-        font-size: 24px;
-        background: url('background.png') #18232a;
-        text-align: center;
-        color: white;
-    }
-    h1 {
-        font-size: 72px;
-        margin: 10px 10px 40px;
-        color: rgb(50, 200, 255);
-        -webkit-text-stroke: 2px white;
-        text-stroke: 3px white;
-    }
-    @media screen and (max-width: 800px) {
-        h1 {
-            font-size: 64px;
+        html {
+            font-family: 'VT323', monospace;
+            font-size: 24px;
+            background: url('background.png') #18232a;
+            text-align: center;
+            color: white;
         }
-    }
-    a {
-        color: rgb(50, 200, 255);
-        text-decoration: none;
-        transition: all ease-in-out .1s;
-    }
-    a:hover, a:focus {
-        color: rgb(105, 255, 255);
-    }
-    .description {
-        text-align: left;
-        width: 700px;
-        max-width: 95%;
-        margin: 40px auto;
-    }
-    .downloads {
-        margin-bottom: 10px;
-        color: rgb(50, 200, 255);
-    }
-    .downloads a {
-        display: inline-block;
-        margin: 10px 20px;
-        width: 200px;
-        max-width: 95%;
-        white-space: pre-wrap;
-        text-decoration: none;
-        border: 1px solid white;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-        padding: 10px 20px;
-        line-height: 20px;
-        transition: all ease-in-out .1s;
-    }
-    .downloads a:hover, .downloads a:focus {
-        color: rgb(105, 255, 255);
-        border-color: rgb(105, 255, 255);
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-    .downloads span:before {
-        content: '\A';
-    }
-    .downloads span {
-        font-size: 16px;
-    }
-    .info {
-        color: white;
-        font-size: 18px;
-        margin-bottom: 40px;
-    }
-    .preview {
-        display: block;
-        max-width: 95%;
-        margin: 0 auto;
-    }
-    .preview img {
-        margin: 10px;
-        max-width: 100%;
-    }
-    .footer {
-        color: white;
-        margin: 10px;
-        font-size: 16px;
-    }
-    .footer a {
-        border-bottom: 1px dashed rgb(50, 200, 255);
-    }
-    .footer a:hover, .footer a:focus {
-        border-bottom-style: solid;
-    }
+
+        h1 {
+            font-size: 72px;
+            margin: 10px 10px 40px;
+            color: rgb(50, 200, 255);
+            -webkit-text-stroke: 2px white;
+            text-stroke: 3px white;
+        }
+
+        @media screen and (max-width: 800px) {
+            h1 {
+                font-size: 64px;
+            }
+        }
+
+        a {
+            color: rgb(50, 200, 255);
+            text-decoration: none;
+            transition: all ease-in-out .1s;
+        }
+
+        a:hover,
+        a:focus {
+            color: rgb(105, 255, 255);
+        }
+
+        .description {
+            text-align: left;
+            width: 700px;
+            max-width: 95%;
+            margin: 40px auto;
+        }
+
+        .downloads {
+            margin-bottom: 10px;
+            color: rgb(50, 200, 255);
+        }
+
+        .downloads a {
+            display: inline-block;
+            margin: 10px 20px;
+            width: 200px;
+            max-width: 95%;
+            white-space: pre-wrap;
+            text-decoration: none;
+            border: 1px solid white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            padding: 10px 20px;
+            line-height: 20px;
+            transition: all ease-in-out .1s;
+        }
+
+        .downloads a:hover,
+        .downloads a:focus {
+            color: rgb(105, 255, 255);
+            border-color: rgb(105, 255, 255);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .downloads span:before {
+            content: '\A';
+        }
+
+        .downloads span {
+            font-size: 16px;
+        }
+
+        .info {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .preview {
+            display: block;
+            max-width: 95%;
+            margin: 0 auto;
+        }
+
+        .preview img {
+            margin: 10px;
+            max-width: 100%;
+        }
+
+        .footer {
+            color: white;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        .footer a {
+            border-bottom: 1px dashed rgb(50, 200, 255);
+        }
+
+        .footer a:hover,
+        .footer a:focus {
+            border-bottom-style: solid;
+        }
+
     </style>
 </head>
 <body>
     <h1>Space Logic Adventure</h1>
     <div class="description">
-        Space Logic Adventure is an arcade game (with a pinch of logic I guess) made for <a href="http://gynvael.coldwind.pl/?id=657">Gynvael's Summer GameDev Challenge 2017</a>. I am very happy about <a href="http://gynvael.coldwind.pl/?lang=en&id=663">winning the first place</a>. More levels are on the way!
+        Space Logic Adventure is an arcade game (with a pinch of logic I guess) made for <a
+            href="http://gynvael.coldwind.pl/?id=657">Gynvael's Summer GameDev Challenge 2017</a>. I am very happy about
+        <a href="http://gynvael.coldwind.pl/?lang=en&id=663">winning the first place</a>. More levels are on the way!
     </div>
     <div class="downloads">
-        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-win32.zip" download>Download for Windows <span>(ver. 1.2 32-bit)</span></a>
-        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-linux-x64.zip" download>Download for Linux <span>(ver. 1.2 64-bit)</span></a>
+        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-win32.zip"
+            download>Download for Windows <span>(ver. 1.2 32-bit)</span></a>
+        <a href="https://github.com/hckr/space-logic-adventure/releases/download/v1.2/space-logic-adventure-v1.2-linux-x64.zip"
+            download>Download for Linux <span>(ver. 1.2 64-bit)</span></a>
     </div>
     <div class="info">
         There might be an Android version if I manage to cross-compile the code.<br>
         <br>
         Older releases are available <a href="https://github.com/hckr/space-logic-adventure/releases">here</a>.<br>
-        If you're interested, you can check out <a href="https://github.com/hckr/space-logic-adventure">a source repository</a>.
+        If you're interested, you can check out <a href="https://github.com/hckr/space-logic-adventure">a source
+            repository</a>.
     </div>
     <figure class="preview">
         <figcaption>Preview animation:</figcaption>
         <img src="preview.gif">
     </figure>
     <div class="footer">Game created by <a href="https://github.com/hckr">Jakub Młokosiewicz</a>, 2017.</div>
+    <script src="https://hckr.pl/topbar.js"></script>
+    <script src="https://hckr.pl/analytics.js"></script>
 </body>
 </html>
